@@ -1,0 +1,162 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+
+const linuxTechniques = [
+  { name: "Tcache Poisoning", reliability: "High", conditions: "glibc < 2.32 (no safe-linking)", color: "accent" },
+  { name: "Fastbin Dup", reliability: "Medium", conditions: "Double-free into fastbin", color: "warning" },
+  { name: "Unsafe Unlink", reliability: "Low", conditions: "Corrupt small/large bin chunk", color: "danger" },
+  { name: "House of Spirit", reliability: "Medium", conditions: "Fake chunk on stack/.bss", color: "warning" },
+  { name: "House of Lore", reliability: "Low", conditions: "Small bin corruption", color: "danger" },
+  { name: "House of Botcake", reliability: "High", conditions: "Tcache + fastbin overlap", color: "accent" },
+];
+
+const windowsTechniques = [
+  { name: "LFH Grooming", reliability: "Medium", conditions: "Spray + free + realloc pattern", color: "warning" },
+  { name: "Pool Corruption", reliability: "High", conditions: "Kernel pool UAF", color: "accent" },
+  { name: "Type Confusion", reliability: "High", conditions: "Object reuse in same LFH bucket", color: "accent" },
+  { name: "Bitmap Flip", reliability: "Medium", conditions: "Corrupt LFH bitmap", color: "warning" },
+  { name: "Segment Heap", reliability: "Low", conditions: "Modern apps, harder target", color: "danger" },
+  { name: "Heap Feng Shui", reliability: "Medium", conditions: "Deterministic chunk placement", color: "warning" },
+];
+---
+
+<div class={`platform-comparison ${className}`}>
+  <div class="grid md:grid-cols-2 gap-6">
+    
+    <!-- Linux Column -->
+    <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-[var(--text)]">Linux / ptmalloc2</div>
+            <div class="text-[10px] font-mono text-[var(--text-muted)]">glibc heap allocator</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 space-y-2">
+        {linuxTechniques.map((t, i) => (
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all group" style={`animation-delay: ${i * 50}ms`}>
+            <div class={`w-2 h-2 rounded-full ${
+              t.color === 'accent' ? 'bg-[var(--accent)]' :
+              t.color === 'warning' ? 'bg-[var(--warning)]' :
+              'bg-[var(--danger)]'
+            }`}></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-mono text-[var(--text)] group-hover:text-[var(--accent)] transition-colors">{t.name}</div>
+              <div class="text-[10px] font-mono text-[var(--text-muted)] truncate">{t.conditions}</div>
+            </div>
+            <div class={`text-[10px] font-mono px-2 py-0.5 rounded ${
+              t.reliability === 'High' ? 'bg-[var(--success)]/10 text-[var(--success)]' :
+              t.reliability === 'Medium' ? 'bg-[var(--warning)]/10 text-[var(--warning)]' :
+              'bg-[var(--danger)]/10 text-[var(--danger)]'
+            }`}>
+              {t.reliability}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Windows Column -->
+    <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[var(--warning)]/10 flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-[var(--text)]">Windows / NT Heap</div>
+            <div class="text-[10px] font-mono text-[var(--text-muted)]">NT Heap + LFH / Segment Heap</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 space-y-2">
+        {windowsTechniques.map((t, i) => (
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--warning)]/30 transition-all group" style={`animation-delay: ${i * 50}ms`}>
+            <div class={`w-2 h-2 rounded-full ${
+              t.color === 'accent' ? 'bg-[var(--success)]' :
+              t.color === 'warning' ? 'bg-[var(--warning)]' :
+              'bg-[var(--danger)]'
+            }`}></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-mono text-[var(--text)] group-hover:text-[var(--warning)] transition-colors">{t.name}</div>
+              <div class="text-[10px] font-mono text-[var(--text-muted)] truncate">{t.conditions}</div>
+            </div>
+            <div class={`text-[10px] font-mono px-2 py-0.5 rounded ${
+              t.reliability === 'High' ? 'bg-[var(--success)]/10 text-[var(--success)]' :
+              t.reliability === 'Medium' ? 'bg-[var(--warning)]/10 text-[var(--warning)]' :
+              'bg-[var(--danger)]/10 text-[var(--danger)]'
+            }`}>
+              {t.reliability}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="mt-6 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+      <span class="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">Feature Comparison</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-[var(--border)]">
+            <th class="text-left px-4 py-3 text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">Feature</th>
+            <th class="text-left px-4 py-3 text-[10px] font-mono text-[var(--accent)] uppercase tracking-wider">Linux / ptmalloc2</th>
+            <th class="text-left px-4 py-3 text-[10px] font-mono text-[var(--warning)] uppercase tracking-wider">Windows / NT Heap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-[var(--border)]">
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Metadata Location</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">In-band (before user ptr)</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">In-band but XOR-encoded</td>
+          </tr>
+          <tr class="border-b border-[var(--border)]">
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Small Chunk Cache</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">Fastbins + tcache (7 entries)</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">LFH buckets (variable count)</td>
+          </tr>
+          <tr class="border-b border-[var(--border)]">
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Randomization</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">Minimal (tcache is deterministic)</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">LFH randomized (Win8+)</td>
+          </tr>
+          <tr class="border-b border-[var(--border)]">
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Safe-Linking</td>
+            <td class="px-4 py-3 text-xs text-[var(--success)] font-mono">glibc 2.32+ (XORs fd)</td>
+            <td class="px-4 py-3 text-xs text-[var(--danger)] font-mono">Metadata encoding only</td>
+          </tr>
+          <tr class="border-b border-[var(--border)]">
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Exploitation Reliability</td>
+            <td class="px-4 py-3 text-xs text-[var(--success)] font-mono">Very High (tcache poisoning)</td>
+            <td class="px-4 py-3 text-xs text-[var(--warning)] font-mono">Medium (requires grooming)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-xs text-[var(--text)] font-medium">Coalescing</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">Yes (except fastbins/tcache)</td>
+            <td class="px-4 py-3 text-xs text-[var(--text-secondary)] font-mono">No (LFH), Yes (back-end)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

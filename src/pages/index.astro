@@ -7,6 +7,7 @@ import { getCollection } from 'astro:content';
 
 const fundamentals = await getCollection('fundamentals');
 const bugClasses = await getCollection('bug-classes');
+const caseStudies = await getCollection('case-studies');
 
 const sortedFundamentals = fundamentals.sort((a, b) => a.data.order - b.data.order);
 ---
@@ -59,19 +60,19 @@ const sortedFundamentals = fundamentals.sort((a, b) => a.data.order - b.data.ord
       <!-- Animated stats -->
       <div class="reveal mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
         <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--accent)] font-mono">3</div>
+          <div class="text-3xl md:text-4xl font-bold text-[var(--accent)] font-mono">{fundamentals.length}</div>
           <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Fundamentals</div>
         </div>
         <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--warning)] font-mono">1</div>
-          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Bug Class</div>
+          <div class="text-3xl md:text-4xl font-bold text-[var(--warning)] font-mono">{bugClasses.length}</div>
+          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Bug Classes</div>
         </div>
         <div class="text-center">
           <div class="text-3xl md:text-4xl font-bold text-[var(--success)] font-mono">2</div>
           <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Platforms</div>
         </div>
         <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--danger)] font-mono">0</div>
+          <div class="text-3xl md:text-4xl font-bold text-[var(--danger)] font-mono">{caseStudies.length}</div>
           <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Case Studies</div>
         </div>
       </div>

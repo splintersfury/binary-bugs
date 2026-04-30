@@ -2,6 +2,8 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import UAFAnimation from '../../components/UAFAnimation.astro';
+import TcachePoisoning from '../../components/TcachePoisoning.astro';
+import PlatformComparison from '../../components/PlatformComparison.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('bug-classes');
@@ -17,6 +19,13 @@ const post = Astro.props;
 const { Content } = await post.render();
 
 const allBugClasses = await getCollection('bug-classes');
+const caseStudies = await getCollection('case-studies');
+
+// Filter related content for UAF page
+const uafTechniques = allBugClasses.filter(b => 
+  ['tcache-poisoning', 'fastbin-dup', 'windows-lfh-grooming'].includes(b.slug)
+);
+const uafCases = caseStudies.filter(c => c.data.bugClass === 'Use-After-Free');
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
@@ -75,10 +84,73 @@ const allBugClasses = await getCollection('bug-classes');
 
       {/* UAF Animation for use-after-free page */}
       {post.slug === 'use-after-free' && (
-        <div style="margin-bottom: 3rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Interactive Exploitation Flow</div>
-          <UAFAnimation />
-        </div>
+        <>
+          <div style="margin-bottom: 3rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Interactive Exploitation Flow</div>
+            <UAFAnimation />
+          </div>
+
+          {/* Technique Cards */}
+          {uafTechniques.length > 0 && (
+            <div style="margin-bottom: 3rem;">
+              <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Exploitation Techniques</div>
+              <div style="display: grid; gap: 1rem;">
+                {uafTechniques.map(t => (
+                  <a href={`/binary-bugs/bug-classes/${t.slug}`} 
+                     style="display: block; padding: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.2s;"
+                     class="glow-border">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                      <span style="font-size: 1rem; font-weight: 600; color: var(--text);">{t.data.title}</span>
+                      <span style={`display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; ${
+                        t.data.severity === 'critical' ? 'background: rgba(255,68,102,0.15); color: var(--danger);' :
+                        t.data.severity === 'high' ? 'background: rgba(255,184,0,0.15); color: var(--warning);' :
+                        'background: var(--bg-elevated); color: var(--text-muted);'
+                      }`}>{t.data.severity}</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">{t.data.description}</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                      {t.data.tags.map(tag => (
+                        <span style="display: inline-block; padding: 0.15rem 0.4rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; font-size: 0.65rem; font-family: var(--font-mono); color: var(--text-muted);">{tag}</span>
+                      ))}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tcache Poisoning Animation */}
+          <div style="margin-bottom: 3rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Tcache Poisoning Walkthrough</div>
+            <TcachePoisoning />
+          </div>
+
+          {/* Platform Comparison */}
+          <div style="margin-bottom: 3rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Platform Comparison</div>
+            <PlatformComparison />
+          </div>
+
+          {/* Case Studies */}
+          {uafCases.length > 0 && (
+            <div style="margin-bottom: 3rem;">
+              <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Case Studies</div>
+              <div style="display: grid; gap: 1rem;">
+                {uafCases.map(c => (
+                  <a href={`/binary-bugs/case-studies/${c.slug}`}
+                     style="display: block; padding: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.2s;"
+                     class="glow-border">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                      <span style="font-size: 1rem; font-weight: 600; color: var(--text);">{c.data.title}</span>
+                      <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; background: rgba(0,240,255,0.1); color: var(--accent);">{c.data.cve}</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">{c.data.description}</p>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <Content />

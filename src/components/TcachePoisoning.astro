@@ -1,0 +1,338 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class={`tcache-poisoning ${className}`}>
+  <div class="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-[var(--warning)] animate-pulse"></div>
+        <span class="text-xs font-mono text-[var(--text-muted)] uppercase tracking-widest">Technique: tcache poisoning</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono text-[var(--text-muted)]">Step</span>
+        <span id="tcache-step-counter" class="text-xs font-mono text-[var(--accent)] font-bold">1/7</span>
+      </div>
+    </div>
+
+    <!-- Animation Stage -->
+    <div class="relative p-6 min-h-[380px]" id="tcache-stage">
+      
+      <!-- Two columns: Heap + tcache -->
+      <div class="grid grid-cols-2 gap-8">
+        
+        <!-- Heap Column -->
+        <div>
+          <div class="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider mb-3">Heap Segment</div>
+          
+          <!-- Chunk A -->
+          <div id="tcache-chunk-a" class="mb-4 opacity-0 transition-all duration-700">
+            <div class="border border-[var(--accent)] rounded-lg bg-[rgba(0,240,255,0.06)] p-3 relative">
+              <div class="absolute -top-2 left-3 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--accent)]">Chunk A (0x40)</div>
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="text-[9px] font-mono text-[var(--text-muted)]">prev_size: 0x0</div>
+                <div class="text-[9px] font-mono text-[var(--text-muted)]">size: 0x41</div>
+              </div>
+              <div id="tcache-chunk-a-fd" class="mt-2 p-2 rounded bg-[var(--bg-elevated)] border border-[var(--border)]">
+                <div class="text-[9px] font-mono text-[var(--accent)]">fd: NULL</div>
+              </div>
+            </div>
+            <!-- Pointer -->
+            <div id="tcache-ptr-a" class="mt-2 flex items-center gap-2 opacity-0 transition-all duration-500">
+              <div class="w-6 h-[1px] bg-[var(--accent)]"></div>
+              <span class="text-[10px] font-mono text-[var(--accent)]">ptr_A</span>
+            </div>
+          </div>
+
+          <!-- Chunk B (controlled) -->
+          <div id="tcache-chunk-b" class="mb-4 opacity-0 transition-all duration-700">
+            <div class="border border-[var(--warning)] rounded-lg bg-[rgba(255,184,0,0.06)] p-3 relative">
+              <div class="absolute -top-2 left-3 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--warning)]">Chunk B (attacker controlled)</div>
+              <div class="text-[9px] font-mono text-[var(--warning)]/70 mt-2">Overwrites Chunk A's fd pointer</div>
+            </div>
+          </div>
+
+          <!-- Target -->
+          <div id="tcache-target" class="opacity-0 transition-all duration-700">
+            <div class="border border-[var(--danger)] border-dashed rounded-lg bg-[rgba(255,68,102,0.06)] p-3 relative">
+              <div class="absolute -top-2 left-3 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--danger)]">__free_hook</div>
+              <div id="tcache-target-value" class="text-[9px] font-mono text-[var(--text-muted)] mt-2">value: NULL</div>
+              <div id="tcache-target-shellcode" class="text-[9px] font-mono text-[var(--success)] mt-1 hidden">→ system("/bin/sh")</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- tcache Column -->
+        <div>
+          <div class="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider mb-3">tcache[0x40] — LIFO linked list</div>
+          
+          <div class="border border-[var(--border)] rounded-lg bg-[var(--bg-elevated)] p-4">
+            <div class="text-center text-[10px] font-mono text-[var(--text-muted)] mb-3">count: <span id="tcache-count">0</span>/7</div>
+            
+            <!-- tcache entries -->
+            <div class="space-y-2">
+              <div id="tcache-entry-1" class="h-10 rounded border border-[var(--border)] bg-[var(--bg-card)] flex items-center justify-center opacity-0 transition-all duration-500">
+                <span class="text-[9px] font-mono text-[var(--text-muted)]">empty</span>
+              </div>
+              <div id="tcache-entry-2" class="h-10 rounded border border-[var(--border)] bg-[var(--bg-card)] flex items-center justify-center opacity-0 transition-all duration-500">
+                <span class="text-[9px] font-mono text-[var(--text-muted)]">empty</span>
+              </div>
+              <div id="tcache-entry-3" class="h-10 rounded border border-[var(--border)] bg-[var(--bg-card)] flex items-center justify-center opacity-0 transition-all duration-500">
+                <span class="text-[9px] font-mono text-[var(--text-muted)]">empty</span>
+              </div>
+            </div>
+
+            <!-- Pointer arrows between tcache entries -->
+            <div id="tcache-arrows" class="hidden mt-3 p-3 rounded bg-[var(--bg-card)] border border-[var(--border)]">
+              <div class="text-[9px] font-mono text-[var(--accent)] mb-2">tcache->entries[0x40]:</div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="tcache-addr-1" class="text-[9px] font-mono text-[var(--accent)] hidden">0x7fff8a20</span>
+                <span id="tcache-arrow-1" class="text-[var(--text-muted)] hidden">→</span>
+                <span id="tcache-addr-2" class="text-[9px] font-mono text-[var(--warning)] hidden">0x7fffdead</span>
+                <span id="tcache-arrow-2" class="text-[var(--text-muted)] hidden">→</span>
+                <span class="text-[9px] font-mono text-[var(--text-muted)]">NULL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result banner -->
+      <div id="tcache-result" class="mt-6 p-4 rounded-lg bg-[var(--success)]/5 border border-[var(--success)]/20 opacity-0 transition-all duration-700">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">$</span>
+          <span class="text-sm font-mono text-[var(--success)]">Arbitrary write achieved! <span class="text-[var(--text-muted)]">__free_hook → system("/bin/sh")</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center justify-between px-6 py-4 border-t border-[var(--border)] bg-[var(--bg-elevated)]">
+      <div class="flex items-center gap-2">
+        <button id="tcache-prev" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] text-xs font-mono hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+          ← Prev
+        </button>
+        <button id="tcache-next" class="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-[var(--bg)] text-xs font-mono font-semibold hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+          Next →
+        </button>
+        <button id="tcache-reset" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] text-xs font-mono hover:border-[var(--danger)] hover:text-[var(--danger)] transition-all ml-2">
+          Reset
+        </button>
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="tcache-auto-play" class="w-3 h-3 rounded border-[var(--border)] bg-[var(--bg-elevated)] accent-[var(--accent)]">
+          <span class="text-[10px] font-mono text-[var(--text-muted)]">Auto-play</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step Description -->
+    <div id="tcache-description" class="px-6 py-3 border-t border-[var(--border)] bg-[var(--bg-card)]">
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed" data-step="1">
+        <span class="text-[var(--accent)] font-bold">Step 1:</span> Allocate chunk A (size 0x40). It's placed on the heap with fd=NULL.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="2">
+        <span class="text-[var(--danger)] font-bold">Step 2:</span> Free chunk A. It enters <code>tcache[0x40]</code> as the first entry. fd still points to NULL.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="3">
+        <span class="text-[var(--warning)] font-bold">Step 3:</span> Use UAF or overflow to overwrite chunk A's <code>fd</code> pointer to point to <code>__free_hook</code>.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="4">
+        <span class="text-[var(--accent)] font-bold">Step 4:</span> First <code>malloc(0x40)</code> returns chunk A (the legitimate chunk).
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="5">
+        <span class="text-[var(--warning)] font-bold">Step 5:</span> Second <code>malloc(0x40)</code> returns the corrupted fd pointer — <code>__free_hook</code>!
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="6">
+        <span class="text-[var(--success)] font-bold">Step 6:</span> Write the address of <code>system("/bin/sh")</code> to the returned pointer. <code>__free_hook</code> is now hijacked.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono leading-relaxed hidden" data-step="7">
+        <span class="text-[var(--success)] font-bold">Step 7:</span> Call <code>free(any_ptr)</code>. The hook redirects to <code>system("/bin/sh")</code>. Shell.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    let currentStep = 1;
+    const totalSteps = 7;
+    let autoPlayInterval = null;
+    
+    const counter = document.getElementById('tcache-step-counter');
+    const prevBtn = document.getElementById('tcache-prev');
+    const nextBtn = document.getElementById('tcache-next');
+    const resetBtn = document.getElementById('tcache-reset');
+    const autoPlayCheck = document.getElementById('tcache-auto-play');
+    const descriptions = document.querySelectorAll('#tcache-description p[data-step]');
+    
+    function updateUI() {
+      counter.textContent = `${currentStep}/${totalSteps}`;
+      prevBtn.disabled = currentStep === 1;
+      nextBtn.textContent = currentStep === totalSteps ? 'Replay ↻' : 'Next →';
+      
+      descriptions.forEach(p => {
+        p.classList.toggle('hidden', parseInt(p.dataset.step) !== currentStep);
+      });
+      
+      // Elements
+      const chunkA = document.getElementById('tcache-chunk-a');
+      const ptrA = document.getElementById('tcache-ptr-a');
+      const chunkAFd = document.getElementById('tcache-chunk-a-fd');
+      const chunkB = document.getElementById('tcache-chunk-b');
+      const target = document.getElementById('tcache-target');
+      const targetValue = document.getElementById('tcache-target-value');
+      const targetShellcode = document.getElementById('tcache-target-shellcode');
+      const tcacheCount = document.getElementById('tcache-count');
+      const entry1 = document.getElementById('tcache-entry-1');
+      const entry2 = document.getElementById('tcache-entry-2');
+      const entry3 = document.getElementById('tcache-entry-3');
+      const arrows = document.getElementById('tcache-arrows');
+      const addr1 = document.getElementById('tcache-addr-1');
+      const addr2 = document.getElementById('tcache-addr-2');
+      const arrow1 = document.getElementById('tcache-arrow-1');
+      const arrow2 = document.getElementById('tcache-arrow-2');
+      const result = document.getElementById('tcache-result');
+      
+      // Reset
+      [chunkA, chunkB, target].forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.95)';
+      });
+      ptrA.style.opacity = '0';
+      entry1.style.opacity = '0';
+      entry2.style.opacity = '0';
+      entry3.style.opacity = '0';
+      arrows.classList.add('hidden');
+      addr1.classList.add('hidden');
+      addr2.classList.add('hidden');
+      arrow1.classList.add('hidden');
+      arrow2.classList.add('hidden');
+      targetShellcode.classList.add('hidden');
+      result.style.opacity = '0';
+      chunkAFd.innerHTML = '<div class="text-[9px] font-mono text-[var(--accent)]">fd: NULL</div>';
+      tcacheCount.textContent = '0';
+      
+      switch(currentStep) {
+        case 1:
+          chunkA.style.opacity = '1';
+          chunkA.style.transform = 'scale(1)';
+          setTimeout(() => ptrA.style.opacity = '1', 300);
+          break;
+        case 2:
+          chunkA.style.opacity = '1';
+          chunkA.style.transform = 'scale(1)';
+          ptrA.style.opacity = '1';
+          entry1.style.opacity = '1';
+          entry1.innerHTML = '<span class="text-[9px] font-mono text-[var(--accent)]">0x7fff8a20</span>';
+          entry1.style.borderColor = 'var(--accent)';
+          tcacheCount.textContent = '1';
+          break;
+        case 3:
+          chunkA.style.opacity = '1';
+          chunkA.style.transform = 'scale(1)';
+          ptrA.style.opacity = '1';
+          entry1.style.opacity = '1';
+          entry1.innerHTML = '<span class="text-[9px] font-mono text-[var(--accent)]">0x7fff8a20</span>';
+          entry1.style.borderColor = 'var(--accent)';
+          chunkB.style.opacity = '1';
+          chunkB.style.transform = 'scale(1)';
+          chunkAFd.innerHTML = '<div class="text-[9px] font-mono text-[var(--warning)]">fd: 0x7fffdead (__free_hook)</div>';
+          tcacheCount.textContent = '1';
+          break;
+        case 4:
+          chunkA.style.opacity = '1';
+          chunkA.style.transform = 'scale(1)';
+          ptrA.style.opacity = '1';
+          entry1.style.opacity = '1';
+          entry1.innerHTML = '<span class="text-[9px] font-mono text-[var(--text-muted)]">empty</span>';
+          entry1.style.borderColor = 'var(--border)';
+          chunkAFd.innerHTML = '<div class="text-[9px] font-mono text-[var(--warning)]">fd: 0x7fffdead</div>';
+          tcacheCount.textContent = '0';
+          break;
+        case 5:
+          target.style.opacity = '1';
+          target.style.transform = 'scale(1)';
+          entry1.style.opacity = '1';
+          entry1.innerHTML = '<span class="text-[9px] font-mono text-[var(--warning)]">0x7fffdead</span>';
+          entry1.style.borderColor = 'var(--warning)';
+          arrows.classList.remove('hidden');
+          addr1.classList.remove('hidden');
+          arrow1.classList.remove('hidden');
+          addr2.classList.remove('hidden');
+          arrow2.classList.remove('hidden');
+          chunkAFd.innerHTML = '<div class="text-[9px] font-mono text-[var(--warning)]">fd: 0x7fffdead</div>';
+          tcacheCount.textContent = '1';
+          break;
+        case 6:
+          target.style.opacity = '1';
+          target.style.transform = 'scale(1)';
+          targetValue.textContent = 'value: 0x401050 (system)';
+          targetShellcode.classList.remove('hidden');
+          entry1.style.opacity = '1';
+          entry1.innerHTML = '<span class="text-[9px] font-mono text-[var(--text-muted)]">empty</span>';
+          entry1.style.borderColor = 'var(--border)';
+          arrows.classList.remove('hidden');
+          addr1.classList.remove('hidden');
+          arrow1.classList.remove('hidden');
+          tcacheCount.textContent = '0';
+          break;
+        case 7:
+          target.style.opacity = '1';
+          target.style.transform = 'scale(1)';
+          targetValue.textContent = 'value: 0x401050 (system)';
+          targetShellcode.classList.remove('hidden');
+          result.style.opacity = '1';
+          break;
+      }
+    }
+    
+    function nextStep() {
+      if (currentStep >= totalSteps) {
+        currentStep = 1;
+      } else {
+        currentStep++;
+      }
+      updateUI();
+    }
+    
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateUI();
+      }
+    }
+    
+    function reset() {
+      currentStep = 1;
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+        autoPlayCheck.checked = false;
+      }
+      updateUI();
+    }
+    
+    function toggleAutoPlay() {
+      if (autoPlayCheck.checked) {
+        autoPlayInterval = setInterval(nextStep, 3000);
+      } else {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+      }
+    }
+    
+    nextBtn.addEventListener('click', nextStep);
+    prevBtn.addEventListener('click', prevStep);
+    resetBtn.addEventListener('click', reset);
+    autoPlayCheck.addEventListener('change', toggleAutoPlay);
+    
+    updateUI();
+  })();
+</script>
