@@ -4,6 +4,10 @@ import Layout from '../../layouts/Layout.astro';
 import UAFAnimation from '../../components/UAFAnimation.astro';
 import TcachePoisoning from '../../components/TcachePoisoning.astro';
 import PlatformComparison from '../../components/PlatformComparison.astro';
+import VSScreen from '../../components/VSScreen.astro';
+import ComboCounter from '../../components/ComboCounter.astro';
+import CharacterPortrait from '../../components/CharacterPortrait.astro';
+import PowerUpBar from '../../components/PowerUpBar.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('bug-classes');
@@ -25,13 +29,27 @@ const uafTechniques = allBugClasses.filter(b =>
   ['tcache-poisoning', 'fastbin-dup', 'windows-lfh-grooming'].includes(b.slug)
 );
 const uafCases = caseStudies.filter(c => c.data.bugClass === 'Use-After-Free');
+
+const exploitChain = [
+  { label: 'Allocate', icon: '📦', color: 'cyan' },
+  { label: 'Free', icon: '🔓', color: 'red' },
+  { label: 'Corrupt', icon: '💀', color: 'amber' },
+  { label: 'Realloc', icon: '🎭', color: 'amber' },
+  { label: 'Exploit', icon: '💥', color: 'red' },
+];
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
   <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;">
     
-    <!-- Header -->
+    <!-- Header with characters -->
     <div style="text-align: center; margin-bottom: 3rem;">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+        <CharacterPortrait character="allocator" size={60} />
+        <span style="font-size: 1.5rem; color: var(--text-muted);">⚔️</span>
+        <CharacterPortrait character="attacker" size={60} />
+      </div>
+      
       <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <span style={`display: inline-block; padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; ${
           post.data.severity === 'critical' ? 'background: rgba(255,68,102,0.15); color: var(--danger); border: 1px solid rgba(255,68,102,0.3);' :
@@ -67,6 +85,11 @@ const uafCases = caseStudies.filter(c => c.data.bugClass === 'Use-After-Free');
     {/* UAF-specific interactive content */}
     {post.slug === 'use-after-free' && (
       <>
+        {/* Exploitation Chain Combo */}
+        <div style="margin-bottom: 3rem;">
+          <ComboCounter steps={exploitChain} />
+        </div>
+
         {/* Interactive Exploitation Flow */}
         <div style="margin-bottom: 4rem;">
           <div class="chapter-title">Interactive Exploitation Flow</div>
@@ -78,8 +101,26 @@ const uafCases = caseStudies.filter(c => c.data.bugClass === 'Use-After-Free');
           <Content />
         </div>
 
-        {/* Techniques */}
+        {/* Mitigation Power-Up Bars */}
         <div style="margin-top: 4rem; margin-bottom: 4rem;">
+          <div class="chapter-title">Mitigation Power Levels</div>
+          <div style="background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 2rem;">
+            <PowerUpBar name="ASAN (AddressSanitizer)" level={95} maxLevel={100} color="green" description="Detects UAF at runtime. Heavy performance cost." />
+            <PowerUpBar name="Safe-Linking (glibc 2.32+)" level={70} maxLevel={100} color="cyan" description="XORs fd pointers. Requires heap leak to bypass." />
+            <PowerUpBar name="Double-Free Detection" level={60} maxLevel={100} color="amber" description="Catches consecutive frees. Bypassable with intermediate allocations." />
+            <PowerUpBar name="Dangling Pointer Scrubbing" level={40} maxLevel={100} color="red" description="Zero pointers after free. Requires discipline, often missed." />
+            <PowerUpBar name="LFH Randomization (Windows)" level={75} maxLevel={100} color="cyan" description="Randomizes slot allocation. Defeated by heap grooming." />
+          </div>
+        </div>
+
+        {/* VS Screen */}
+        <div style="margin-bottom: 4rem;">
+          <div class="chapter-title">Platform Showdown</div>
+          <VSScreen leftName="Linux" rightName="Windows" />
+        </div>
+
+        {/* Techniques */}
+        <div style="margin-bottom: 4rem;">
           <div class="chapter-title">Exploitation Techniques</div>
           <div style="display: grid; gap: 1.5rem;">
             {uafTechniques.map(t => (

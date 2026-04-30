@@ -1,0 +1,66 @@
+---
+interface Props {
+  name: string;
+  level: number; // 0-100
+  maxLevel?: number;
+  color?: 'cyan' | 'red' | 'green' | 'amber';
+  description?: string;
+}
+
+const { name, level, maxLevel = 100, color = 'cyan', description = '' } = Astro.props;
+
+const colorMap = {
+  cyan: { bar: 'var(--accent)', glow: 'rgba(0, 240, 255, 0.4)', bg: 'rgba(0, 240, 255, 0.1)' },
+  red: { bar: 'var(--danger)', glow: 'rgba(255, 68, 102, 0.4)', bg: 'rgba(255, 68, 102, 0.1)' },
+  green: { bar: 'var(--success)', glow: 'rgba(0, 255, 157, 0.4)', bg: 'rgba(0, 255, 157, 0.1)' },
+  amber: { bar: 'var(--warning)', glow: 'rgba(255, 184, 0, 0.4)', bg: 'rgba(255, 184, 0, 0.1)' },
+};
+
+const c = colorMap[color];
+const pct = Math.min(100, Math.max(0, (level / maxLevel) * 100));
+---
+
+<div class="power-up-bar" style={`margin: 1rem 0;`}>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+    <span style="font-weight: 700; font-size: 0.9rem; color: var(--text);">{name}</span>
+    <span style="font-family: var(--font-mono); font-size: 0.8rem; color: ${c.bar}; font-weight: 700;">{level}/{maxLevel}</span>
+  </div>
+  <div style={`height: 24px; background: var(--bg-elevated); border: 2px solid var(--border); border-radius: 4px; overflow: hidden; position: relative;`}>
+    {/* Background pattern */}
+    <div style={`position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 8px, ${c.bg} 8px, ${c.bg} 16px);`}></div>
+    {/* Fill bar */}
+    <div class="power-fill" style={`width: ${pct}%; height: 100%; background: ${c.bar}; position: relative; transition: width 1.5s ease-out; box-shadow: 0 0 20px ${c.glow};`}>
+      {/* Shine effect */}
+      <div style={`position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);`}></div>
+      {/* Animated edge */}
+      <div style={`position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: #fff; opacity: 0.6; animation: power-pulse 1s ease-in-out infinite;`}></div>
+    </div>
+  </div>
+  {description && <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">{description}</p>}
+</div>
+
+<style>
+  @keyframes power-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    const bars = document.querySelectorAll('.power-fill');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const targetWidth = entry.target.style.width;
+          entry.target.style.width = '0%';
+          requestAnimationFrame(() => {
+            entry.target.style.width = targetWidth;
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    bars.forEach(bar => observer.observe(bar));
+  })();
+</script>

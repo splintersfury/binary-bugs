@@ -1,0 +1,97 @@
+---
+interface Props {
+  steps: { label: string; icon: string; color?: string }[];
+  class?: string;
+}
+
+const { steps, class: className = '' } = Astro.props;
+
+const colorMap: Record<string, string> = {
+  cyan: 'var(--accent)',
+  red: 'var(--danger)',
+  green: 'var(--success)',
+  amber: 'var(--warning)',
+};
+---
+
+<div class={`combo-counter ${className}`} style="margin: 2rem 0;">
+  <div style="text-align: center; margin-bottom: 1.5rem;">
+    <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted);">Exploitation Chain</span>
+  </div>
+  
+  <div style="display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap;">
+    {steps.map((step, i) => (
+      <>
+        {/* Step node */}
+        <div class="combo-node" style={`display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1;`}>
+          <div style={`
+            width: 56px; height: 56px; 
+            border-radius: 50%; 
+            background: var(--bg-card); 
+            border: 3px solid ${colorMap[step.color || 'cyan']}; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px ${colorMap[step.color || 'cyan']}40;
+            position: relative;
+          `}>
+            {step.icon}
+            {/* Combo number */}
+            <span style={`
+              position: absolute; top: -8px; right: -8px;
+              width: 22px; height: 22px; border-radius: 50%;
+              background: ${colorMap[step.color || 'cyan']}; color: var(--bg);
+              font-size: 0.7rem; font-weight: 800; font-family: var(--font-mono);
+              display: flex; align-items: center; justify-content: center;
+            `}>{i + 1}</span>
+          </div>
+          <span style="margin-top: 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-align: center; max-width: 80px; line-height: 1.3;">{step.label}</span>
+        </div>
+        
+        {/* Arrow between steps */}
+        {i < steps.length - 1 && (
+          <div style="display: flex; align-items: center; padding: 0 0.5rem; margin-bottom: 1.5rem;">
+            <svg width="32" height="16" viewBox="0 0 32 16" style="opacity: 0.6;">
+              <line x1="0" y1="8" x2="24" y2="8" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="4,2">
+                <animate attributeName="stroke-dashoffset" from="0" to="-12" dur="0.8s" repeatCount="indefinite"/>
+              </line>
+              <polygon points="24,4 32,8 24,12" fill="var(--text-muted)"/>
+            </svg>
+          </div>
+        )}
+      </>
+    ))}
+  </div>
+  
+  {/* Combo hit text */}
+  <div style="text-align: center; margin-top: 1rem;">
+    <span class="combo-hit" style="font-size: 1.5rem; font-weight: 900; color: var(--danger); text-transform: uppercase; letter-spacing: 0.1em; display: inline-block; transform: rotate(-2deg);">
+      {steps.length} HIT COMBO!
+    </span>
+  </div>
+</div>
+
+<style>
+  .combo-node {
+    animation: combo-pop 0.4s ease-out backwards;
+  }
+  .combo-node:nth-child(1) { animation-delay: 0s; }
+  .combo-node:nth-child(3) { animation-delay: 0.1s; }
+  .combo-node:nth-child(5) { animation-delay: 0.2s; }
+  .combo-node:nth-child(7) { animation-delay: 0.3s; }
+  .combo-node:nth-child(9) { animation-delay: 0.4s; }
+  
+  @keyframes combo-pop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    70% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  
+  .combo-hit {
+    animation: combo-shake 0.5s ease-in-out infinite alternate;
+  }
+  
+  @keyframes combo-shake {
+    from { transform: rotate(-2deg) scale(1); }
+    to { transform: rotate(2deg) scale(1.05); }
+  }
+</style>
