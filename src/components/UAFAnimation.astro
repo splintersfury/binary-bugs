@@ -21,7 +21,7 @@ const { class: className = "" } = Astro.props;
     </div>
 
     <!-- Animation Stage -->
-    <div class="relative p-8 min-h-[400px]" id="uaf-stage">
+    <div class="relative p-8 min-h-[400px] opacity-0 transition-opacity duration-300" id="uaf-stage">
       <!-- Memory Region Label -->
       <div class="absolute top-4 left-4 text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">Heap Segment</div>
       
@@ -305,5 +305,7 @@ const { class: className = "" } = Astro.props;
     
     // Initialize
     updateUI();
+    // Reveal stage after initial render to prevent FOUC
+    document.getElementById('uaf-stage').classList.remove('opacity-0');
   })();
 </script>

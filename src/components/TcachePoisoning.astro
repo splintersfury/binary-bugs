@@ -21,7 +21,7 @@ const { class: className = "" } = Astro.props;
     </div>
 
     <!-- Animation Stage -->
-    <div class="relative p-6 min-h-[380px]" id="tcache-stage">
+    <div class="relative p-6 min-h-[380px] opacity-0 transition-opacity duration-300" id="tcache-stage">
       
       <!-- Two columns: Heap + tcache -->
       <div class="grid grid-cols-2 gap-8">
@@ -334,5 +334,7 @@ const { class: className = "" } = Astro.props;
     autoPlayCheck.addEventListener('change', toggleAutoPlay);
     
     updateUI();
+    // Reveal stage after initial render to prevent FOUC
+    document.getElementById('tcache-stage').classList.remove('opacity-0');
   })();
 </script>
