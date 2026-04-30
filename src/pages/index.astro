@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const fundamentals = await getCollection('fundamentals');
+const bugClasses = await getCollection('bug-classes');
+
+const sortedFundamentals = fundamentals.sort((a, b) => a.data.order - b.data.order);
+---
+
+<Layout title="Binary Bugs" description="Knowledge base for binary bug classes and exploitation">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+    <header style="text-align: center; padding: 3rem 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem;">
+      <h1 style="font-size: 3rem; margin-bottom: 0.5rem; border: none;">Binary Bugs</h1>
+      <p style="color: var(--text-muted); font-size: 1.25rem;">
+        A structured knowledge base for studying memory corruption and binary vulnerabilities.
+      </p>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem;">
+      <!-- Sidebar -->
+      <aside style="border-right: 1px solid var(--border); padding-right: 1.5rem;">
+        <nav>
+          <h3 style="margin-top: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+            Fundamentals
+          </h3>
+          <ul style="list-style: none; padding: 0; margin-bottom: 2rem;">
+            {sortedFundamentals.map(f => (
+              <li style="margin-bottom: 0.5rem;">
+                <a href={`/binary-bugs/fundamentals/${f.slug}`}>{f.data.title}</a>
+              </li>
+            ))}
+          </ul>
+
+          <h3 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+            Bug Classes
+          </h3>
+          <ul style="list-style: none; padding: 0;">
+            {bugClasses.map(b => (
+              <li style="margin-bottom: 0.5rem;">
+                <a href={`/binary-bugs/bug-classes/${b.slug}`}>{b.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main>
+        <section style="margin-bottom: 3rem;">
+          <h2 style="margin-top: 0;">Study Path</h2>
+          <p>
+            This site is built incrementally as I study binary vulnerabilities. 
+            Currently focused on understanding heap internals across Windows and Linux 
+            before diving into Use-After-Free exploitation.
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+            <a href="/binary-bugs/fundamentals/heap-overview" 
+               style="display: block; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-decoration: none;">
+              <h3 style="margin-top: 0; color: var(--accent);">1. Heap Fundamentals</h3>
+              <p style="color: var(--text-muted); margin-bottom: 0;">How allocators work in Linux (ptmalloc) and Windows.</p>
+            </a>
+            <a href="/binary-bugs/bug-classes/use-after-free" 
+               style="display: block; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-decoration: none;">
+              <h3 style="margin-top: 0; color: var(--accent);">2. Use-After-Free</h3>
+              <p style="color: var(--text-muted); margin-bottom: 0;">The bug class I'm targeting. Prerequisites: heap internals.</p>
+            </a>
+          </div>
+        </section>
+
+        <section>
+          <h2>Principles</h2>
+          <ul>
+            <li><strong>Platform-agnostic</strong> — Study both Linux and Windows heap behavior.</li>
+            <li><strong>Incremental</strong> — Start with concepts, add depth over time.</li>
+            <li><strong>Connected</strong> — Every concept links to prerequisites and related bugs.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem 0; margin-top: 3rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem;">
+      Built with Astro &middot; <a href="https://github.com/splintersfury/binary-bugs">View on GitHub</a>
+    </footer>
+  </div>
+</Layout>
