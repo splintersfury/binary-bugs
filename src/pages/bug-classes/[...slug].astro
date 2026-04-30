@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import UAFAnimation from '../../components/UAFAnimation.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('bug-classes');
@@ -20,16 +21,16 @@ const allBugClasses = await getCollection('bug-classes');
 
 <Layout title={post.data.title} description={post.data.description}>
   <div style="max-width: 1200px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 260px 1fr; gap: 2rem;">
-    <aside style="border-right: 1px solid var(--border); padding-right: 1.5rem; align-self: start; position: sticky; top: 2rem;">
-      <a href="/binary-bugs/" style="display: block; margin-bottom: 2rem; font-weight: 600;">← Binary Bugs</a>
-      <h3 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+    <aside style="border-right: 1px solid var(--border); padding-right: 1.5rem; align-self: start; position: sticky; top: 2rem; height: fit-content;">
+      <a href="/binary-bugs/" style="display: block; margin-bottom: 2rem; font-weight: 600; color: var(--text-secondary);">← Binary Bugs</a>
+      <h3 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; font-weight: 700;">
         Bug Classes
       </h3>
       <ul style="list-style: none; padding: 0;">
         {allBugClasses.map(b => (
           <li style="margin-bottom: 0.5rem;">
             <a href={`/binary-bugs/bug-classes/${b.slug}`} 
-               style={b.slug === post.slug ? 'color: var(--accent-hover); font-weight: 600;' : ''}>
+               style={`display: block; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; ${b.slug === post.slug ? 'color: var(--accent); background: var(--accent-dim); font-weight: 600;' : 'color: var(--text-secondary);'}`}>
               {b.data.title}
             </a>
           </li>
@@ -38,34 +39,45 @@ const allBugClasses = await getCollection('bug-classes');
     </aside>
 
     <main>
-      <div style="margin-bottom: 1rem;">
-        <span style={`display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; ${
-          post.data.severity === 'critical' ? 'background: rgba(248,81,73,0.2); color: var(--danger); border: 1px solid var(--danger);' :
-          post.data.severity === 'high' ? 'background: rgba(240,136,62,0.2); color: var(--warning); border: 1px solid var(--warning);' :
+      <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <span style={`display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; ${
+          post.data.severity === 'critical' ? 'background: rgba(255,68,102,0.15); color: var(--danger); border: 1px solid rgba(255,68,102,0.3);' :
+          post.data.severity === 'high' ? 'background: rgba(255,184,0,0.15); color: var(--warning); border: 1px solid rgba(255,184,0,0.3);' :
           'background: var(--surface); color: var(--text-muted); border: 1px solid var(--border);'
         }`}>
-          {post.data.severity}
+          {post.data.severity} severity
         </span>
         {post.data.affected.heap && (
-          <span style="display: inline-block; margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted);">heap</span>
+          <span style="display: inline-block; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">heap</span>
         )}
         {post.data.affected.stack && (
-          <span style="display: inline-block; margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted);">stack</span>
+          <span style="display: inline-block; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">stack</span>
         )}
         {post.data.affected.kernel && (
-          <span style="display: inline-block; margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted);">kernel</span>
+          <span style="display: inline-block; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">kernel</span>
+        )}
+        {post.data.affected.userland && (
+          <span style="display: inline-block; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">userland</span>
         )}
       </div>
 
-      <h1 style="margin-top: 0;">{post.data.title}</h1>
-      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">{post.data.description}</p>
+      <h1 style="margin-top: 0; margin-bottom: 0.75rem;">{post.data.title}</h1>
+      <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2.5rem; line-height: 1.6;">{post.data.description}</p>
 
       {post.data.prerequisites.length > 0 && (
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
-          <strong>Prerequisites:</strong>
-          <ul style="margin: 0.5rem 0 0 1.5rem;">
-            {post.data.prerequisites.map(p => <li>{p}</li>)}
+        <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Prerequisites</div>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary);">
+            {post.data.prerequisites.map(p => <li style="margin-bottom: 0.35rem;">{p}</li>)}
           </ul>
+        </div>
+      )}
+
+      {/* UAF Animation for use-after-free page */}
+      {post.slug === 'use-after-free' && (
+        <div style="margin-bottom: 3rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Interactive Exploitation Flow</div>
+          <UAFAnimation />
         </div>
       )}
 

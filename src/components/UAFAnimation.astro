@@ -1,0 +1,309 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class={`uaf-animation ${className}`}>
+  <div class="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-[var(--danger)] animate-pulse"></div>
+        <span class="text-xs font-mono text-[var(--text-muted)] uppercase tracking-widest">Live Simulation</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono text-[var(--text-muted)]">Step</span>
+        <span id="uaf-step-counter" class="text-xs font-mono text-[var(--accent)] font-bold">1/4</span>
+      </div>
+    </div>
+
+    <!-- Animation Stage -->
+    <div class="relative p-8 min-h-[400px]" id="uaf-stage">
+      <!-- Memory Region Label -->
+      <div class="absolute top-4 left-4 text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">Heap Segment</div>
+      
+      <!-- Address Column -->
+      <div class="absolute left-4 top-12 bottom-8 w-24 flex flex-col justify-around text-[10px] font-mono text-[var(--text-muted)]">
+        <span>0x7fff8a20</span>
+        <span>0x7fff8a30</span>
+        <span>0x7fff8a40</span>
+        <span>0x7fff8a50</span>
+        <span>0x7fff8a60</span>
+        <span>0x7fff8a70</span>
+      </div>
+
+      <!-- Memory Blocks Container -->
+      <div class="ml-28 relative h-[320px]">
+        
+        <!-- Object A (initially hidden, step 1) -->
+        <div id="uaf-obj-a" class="absolute left-0 top-0 w-64 h-20 rounded-lg border-2 border-[var(--accent)] bg-[rgba(0,240,255,0.08)] opacity-0 transition-all duration-700">
+          <div class="absolute -top-3 left-4 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--accent)]">Object A (foo_t)</div>
+          <div class="p-3 space-y-1">
+            <div class="h-2 w-full rounded bg-[var(--accent)]/20"></div>
+            <div class="h-2 w-3/4 rounded bg-[var(--accent)]/15"></div>
+            <div class="flex gap-2 mt-2">
+              <span class="text-[9px] font-mono text-[var(--accent)]/60">vtable: 0x401230</span>
+              <span class="text-[9px] font-mono text-[var(--accent)]/60">data: ...</span>
+            </div>
+          </div>
+          <!-- Pointer label -->
+          <div id="uaf-ptr-a" class="absolute -right-20 top-1/2 -translate-y-1/2 opacity-0 transition-all duration-500">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-[1px] bg-[var(--accent)]"></div>
+              <span class="text-[10px] font-mono text-[var(--accent)]">ptr_A</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Freed Chunk (step 2) -->
+        <div id="uaf-freed" class="absolute left-0 top-0 w-64 h-20 rounded-lg border-2 border-[var(--danger)] border-dashed bg-[rgba(255,68,102,0.08)] opacity-0 transition-all duration-700">
+          <div class="absolute -top-3 left-4 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--danger)]">FREED CHUNK</div>
+          <div class="p-3 space-y-1">
+            <div class="flex gap-2">
+              <span class="text-[9px] font-mono text-[var(--danger)]/70">fd → next_free</span>
+              <span class="text-[9px] font-mono text-[var(--danger)]/70">bk → prev_free</span>
+            </div>
+            <div class="h-2 w-full rounded bg-[var(--danger)]/10"></div>
+          </div>
+          <!-- Dangling pointer -->
+          <div id="uaf-dangling" class="absolute -right-24 top-1/2 -translate-y-1/2 opacity-0 transition-all duration-500">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-[1px] bg-[var(--danger)] border-dashed"></div>
+              <span class="text-[10px] font-mono text-[var(--danger)]">ptr_A ⚠️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tcache / Bin (step 2) -->
+        <div id="uaf-bin" class="absolute right-8 top-4 w-40 opacity-0 transition-all duration-700">
+          <div class="text-[10px] font-mono text-[var(--text-muted)] mb-2 uppercase tracking-wider text-center">tcache[0x40]</div>
+          <div class="border border-[var(--border)] rounded-lg bg-[var(--bg-elevated)] p-2">
+            <div class="text-center text-[9px] font-mono text-[var(--text-muted)] mb-1">count: 1/7</div>
+            <div id="uaf-bin-entry" class="h-8 rounded border border-[var(--danger)]/30 bg-[var(--danger)]/5 flex items-center justify-center text-[9px] font-mono text-[var(--danger)]/70 opacity-0 transition-all duration-500">
+              0x7fff8a20
+            </div>
+          </div>
+        </div>
+
+        <!-- Object B (step 3) -->
+        <div id="uaf-obj-b" class="absolute left-0 top-0 w-64 h-20 rounded-lg border-2 border-[var(--warning)] bg-[rgba(255,184,0,0.08)] opacity-0 transition-all duration-700">
+          <div class="absolute -top-3 left-4 px-2 bg-[var(--bg-card)] text-[10px] font-mono text-[var(--warning)]">Object B (bar_t) — ATTACKER CONTROLLED</div>
+          <div class="p-3 space-y-1">
+            <div class="h-2 w-full rounded bg-[var(--warning)]/20"></div>
+            <div class="h-2 w-3/4 rounded bg-[var(--warning)]/15"></div>
+            <div class="flex gap-2 mt-2">
+              <span class="text-[9px] font-mono text-[var(--warning)]/70">fake_vtable: 0xdeadbeef</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exploit Trigger (step 4) -->
+        <div id="uaf-exploit" class="absolute left-0 top-28 w-full opacity-0 transition-all duration-700">
+          <div class="flex items-center gap-4">
+            <div class="flex-1 h-[1px] bg-gradient-to-r from-[var(--danger)] to-[var(--warning)]"></div>
+            <div class="px-4 py-2 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/30">
+              <span class="text-[10px] font-mono text-[var(--danger)] font-bold">ptr_A->vtable()</span>
+            </div>
+            <div class="flex-1 h-[1px] bg-gradient-to-r from-[var(--warning)] to-[var(--success)]"></div>
+            <div class="px-4 py-2 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30">
+              <span class="text-[10px] font-mono text-[var(--success)] font-bold">JMP 0xdeadbeef</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code execution flash (step 4) -->
+        <div id="uaf-shell" class="absolute left-1/2 top-48 -translate-x-1/2 opacity-0 transition-all duration-700">
+          <div class="text-center">
+            <div class="text-4xl font-mono text-[var(--success)] glow-text mb-2">$ _</div>
+            <div class="text-xs font-mono text-[var(--success)]/70">Arbitrary Code Execution</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center justify-between px-6 py-4 border-t border-[var(--border)] bg-[var(--bg-elevated)]">
+      <div class="flex items-center gap-2">
+        <button id="uaf-prev" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] text-xs font-mono hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+          ← Prev
+        </button>
+        <button id="uaf-next" class="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-[var(--bg)] text-xs font-mono font-semibold hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+          Next →
+        </button>
+        <button id="uaf-reset" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] text-xs font-mono hover:border-[var(--danger)] hover:text-[var(--danger)] transition-all ml-2">
+          Reset
+        </button>
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="uaf-auto-play" class="w-3 h-3 rounded border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--accent)] accent-[var(--accent)]">
+          <span class="text-[10px] font-mono text-[var(--text-muted)]">Auto-play</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step Description -->
+    <div id="uaf-description" class="px-6 py-3 border-t border-[var(--border)] bg-[var(--bg-card)]">
+      <p class="text-xs text-[var(--text-secondary)] font-mono" data-step="1">
+        <span class="text-[var(--accent)] font-bold">Step 1:</span> Program allocates <code>Object A</code> on the heap. A pointer <code>ptr_A</code> references this memory.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono hidden" data-step="2">
+        <span class="text-[var(--danger)] font-bold">Step 2:</span> Program frees <code>Object A</code>, but <code>ptr_A</code> is not nulled. The chunk enters <code>tcache</code>. <code>ptr_A</code> is now a dangling pointer.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono hidden" data-step="3">
+        <span class="text-[var(--warning)] font-bold">Step 3:</span> Attacker allocates <code>Object B</code> of the same size. The allocator returns the same address. <code>ptr_A</code> now points to attacker-controlled data.
+      </p>
+      <p class="text-xs text-[var(--text-secondary)] font-mono hidden" data-step="4">
+        <span class="text-[var(--success)] font-bold">Step 4:</span> Program uses <code>ptr_A</code>, thinking it's still <code>Object A</code>. The vtable dispatch jumps to attacker-controlled address. Shell achieved.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(255, 68, 102, 0.4); }
+    50% { border-color: rgba(255, 68, 102, 0.8); }
+  }
+  
+  @keyframes float-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .uaf-step-2 #uaf-freed {
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  
+  .uaf-step-4 #uaf-exploit {
+    animation: float-in 0.5s ease-out;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    let currentStep = 1;
+    const totalSteps = 4;
+    let autoPlayInterval = null;
+    
+    const counter = document.getElementById('uaf-step-counter');
+    const prevBtn = document.getElementById('uaf-prev');
+    const nextBtn = document.getElementById('uaf-next');
+    const resetBtn = document.getElementById('uaf-reset');
+    const autoPlayCheck = document.getElementById('uaf-auto-play');
+    const descriptions = document.querySelectorAll('#uaf-description p[data-step]');
+    const stage = document.getElementById('uaf-stage');
+    
+    function updateUI() {
+      counter.textContent = `${currentStep}/${totalSteps}`;
+      prevBtn.disabled = currentStep === 1;
+      nextBtn.textContent = currentStep === totalSteps ? 'Replay ↻' : 'Next →';
+      
+      // Update descriptions
+      descriptions.forEach(p => {
+        p.classList.toggle('hidden', parseInt(p.dataset.step) !== currentStep);
+      });
+      
+      // Update stage class for CSS animations
+      stage.className = `relative p-8 min-h-[400px] uaf-step-${currentStep}`;
+      
+      // Step-specific element visibility
+      const objA = document.getElementById('uaf-obj-a');
+      const ptrA = document.getElementById('uaf-ptr-a');
+      const freed = document.getElementById('uaf-freed');
+      const dangling = document.getElementById('uaf-dangling');
+      const bin = document.getElementById('uaf-bin');
+      const binEntry = document.getElementById('uaf-bin-entry');
+      const objB = document.getElementById('uaf-obj-b');
+      const exploit = document.getElementById('uaf-exploit');
+      const shell = document.getElementById('uaf-shell');
+      
+      // Reset all
+      [objA, freed, objB].forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.95)';
+      });
+      [ptrA, dangling, bin, binEntry, exploit, shell].forEach(el => el.style.opacity = '0');
+      
+      // Apply step states
+      switch(currentStep) {
+        case 1:
+          objA.style.opacity = '1';
+          objA.style.transform = 'scale(1)';
+          setTimeout(() => ptrA.style.opacity = '1', 300);
+          break;
+        case 2:
+          freed.style.opacity = '1';
+          freed.style.transform = 'scale(1)';
+          setTimeout(() => dangling.style.opacity = '1', 300);
+          setTimeout(() => {
+            bin.style.opacity = '1';
+            setTimeout(() => binEntry.style.opacity = '1', 200);
+          }, 400);
+          break;
+        case 3:
+          freed.style.opacity = '0.3';
+          freed.style.transform = 'scale(1)';
+          objB.style.opacity = '1';
+          objB.style.transform = 'scale(1)';
+          bin.style.opacity = '1';
+          binEntry.style.opacity = '0';
+          break;
+        case 4:
+          objB.style.opacity = '1';
+          objB.style.transform = 'scale(1)';
+          setTimeout(() => exploit.style.opacity = '1', 200);
+          setTimeout(() => shell.style.opacity = '1', 600);
+          break;
+      }
+    }
+    
+    function nextStep() {
+      if (currentStep >= totalSteps) {
+        currentStep = 1;
+      } else {
+        currentStep++;
+      }
+      updateUI();
+    }
+    
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateUI();
+      }
+    }
+    
+    function reset() {
+      currentStep = 1;
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+        autoPlayCheck.checked = false;
+      }
+      updateUI();
+    }
+    
+    function toggleAutoPlay() {
+      if (autoPlayCheck.checked) {
+        autoPlayInterval = setInterval(() => {
+          nextStep();
+        }, 3000);
+      } else {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+      }
+    }
+    
+    nextBtn.addEventListener('click', nextStep);
+    prevBtn.addEventListener('click', prevStep);
+    resetBtn.addEventListener('click', reset);
+    autoPlayCheck.addEventListener('change', toggleAutoPlay);
+    
+    // Initialize
+    updateUI();
+  })();
+</script>

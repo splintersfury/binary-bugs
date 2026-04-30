@@ -1,0 +1,64 @@
+---
+interface Props {
+  texts: string[];
+  speed?: number;
+  class?: string;
+}
+
+const { texts, speed = 80, class: className = "" } = Astro.props;
+---
+
+<span id="typewriter" class={className} data-texts={JSON.stringify(texts)} data-speed={speed}></span>
+<span id="typewriter-cursor" class="inline-block w-[3px] h-[1em] bg-[var(--accent)] ml-1 animate-pulse align-middle"></span>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-pulse {
+    animation: pulse 1s ease-in-out infinite;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    const el = document.getElementById('typewriter');
+    const cursor = document.getElementById('typewriter-cursor');
+    if (!el) return;
+    
+    const texts = JSON.parse(el.dataset.texts);
+    const speed = parseInt(el.dataset.speed);
+    let textIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let pauseTime = 0;
+
+    function type() {
+      const currentText = texts[textIndex];
+      
+      if (isDeleting) {
+        el.textContent = currentText.substring(0, charIndex - 1);
+        charIndex--;
+      } else {
+        el.textContent = currentText.substring(0, charIndex + 1);
+        charIndex++;
+      }
+
+      let typeSpeed = isDeleting ? speed / 2 : speed;
+
+      if (!isDeleting && charIndex === currentText.length) {
+        typeSpeed = 2000;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        textIndex = (textIndex + 1) % texts.length;
+        typeSpeed = 500;
+      }
+
+      setTimeout(type, typeSpeed);
+    }
+
+    setTimeout(type, 1000);
+  })();
+</script>

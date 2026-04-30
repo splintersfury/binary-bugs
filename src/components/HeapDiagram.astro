@@ -1,0 +1,120 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class={`${className}`}>
+  <svg viewBox="0 0 800 280" class="w-full" style="max-width: 800px;">
+    <defs>
+      <linearGradient id="chunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:rgba(0,240,255,0.2)"/>
+        <stop offset="100%" style="stop-color:rgba(0,240,255,0.05)"/>
+      </linearGradient>
+      <linearGradient id="metaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:rgba(255,184,0,0.3)"/>
+        <stop offset="100%" style="stop-color:rgba(255,184,0,0.1)"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <!-- Background grid -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,240,255,0.05)" stroke-width="0.5"/>
+    </pattern>
+    <rect width="800" height="280" fill="url(#grid)"/>
+
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" fill="var(--text-secondary)" font-family="JetBrains Mono, monospace" font-size="12" letter-spacing="2">HEAP CHUNK STRUCTURE (ptmalloc2)</text>
+
+    <!-- Chunk rectangle -->
+    <g transform="translate(100, 60)">
+      <!-- Metadata section -->
+      <rect x="0" y="0" width="600" height="60" rx="4" fill="url(#metaGrad)" stroke="rgba(255,184,0,0.4)" stroke-width="1.5" class="diagram-chunk" data-info="Metadata: prev_size (8 bytes) and size (8 bytes) fields. The size field contains flags in its 3 least significant bits."/>
+      
+      <text x="300" y="25" text-anchor="middle" fill="rgba(255,184,0,0.9)" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">METADATA (16 bytes)</text>
+      <text x="300" y="45" text-anchor="middle" fill="rgba(255,184,0,0.6)" font-family="JetBrains Mono, monospace" font-size="10">mchunk_prev_size | mchunk_size [PREV_INUSE | IS_MMAPPED | NON_MAIN_ARENA]</text>
+
+      <!-- Pointer arrow -->
+      <line x1="-30" y1="80" x2="20" y2="65" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+      <text x="-35" y="85" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">malloc()</text>
+      <text x="-35" y="100" text-anchor="end" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="9">returns this ptr</text>
+
+      <!-- User data section -->
+      <rect x="0" y="60" width="600" height="100" rx="4" fill="url(#chunkGrad)" stroke="rgba(0,240,255,0.4)" stroke-width="1.5" class="diagram-chunk" data-info="User Data: The region returned by malloc(). When the chunk is free, this area stores fd (forward pointer) and bk (backward pointer) for bin linkage."/>
+      
+      <text x="300" y="105" text-anchor="middle" fill="rgba(0,240,255,0.9)" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">USER DATA</text>
+      <text x="300" y="125" text-anchor="middle" fill="rgba(0,240,255,0.6)" font-family="JetBrains Mono, monospace" font-size="10">When allocated: your data lives here</text>
+      <text x="300" y="142" text-anchor="middle" fill="rgba(0,240,255,0.5)" font-family="JetBrains Mono, monospace" font-size="10">When freed: fd and bk pointers stored here</text>
+
+      <!-- Size labels -->
+      <text x="620" y="35" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="10">16 bytes</text>
+      <text x="620" y="115" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="10">N bytes</text>
+    </g>
+
+    <!-- Bottom annotations -->
+    <g transform="translate(100, 200)">
+      <rect x="0" y="0" width="190" height="55" rx="4" fill="rgba(0,255,157,0.05)" stroke="rgba(0,255,157,0.3)" stroke-width="1" class="diagram-chunk" data-info="PREV_INUSE (bit 0): Indicates if the previous chunk is allocated. If clear, prev_size is valid."/>
+      <text x="95" y="22" text-anchor="middle" fill="rgba(0,255,157,0.8)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">PREV_INUSE (0x1)</text>
+      <text x="95" y="40" text-anchor="middle" fill="rgba(0,255,157,0.5)" font-family="JetBrains Mono, monospace" font-size="9">Previous chunk allocated</text>
+
+      <rect x="205" y="0" width="190" height="55" rx="4" fill="rgba(0,240,255,0.05)" stroke="rgba(0,240,255,0.3)" stroke-width="1" class="diagram-chunk" data-info="IS_MMAPPED (bit 1): Set if this chunk was allocated via mmap() rather than from the heap arena."/>
+      <text x="300" y="22" text-anchor="middle" fill="rgba(0,240,255,0.8)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">IS_MMAPPED (0x2)</text>
+      <text x="300" y="40" text-anchor="middle" fill="rgba(0,240,255,0.5)" font-family="JetBrains Mono, monospace" font-size="9">Allocated via mmap()</text>
+
+      <rect x="410" y="0" width="190" height="55" rx="4" fill="rgba(255,68,102,0.05)" stroke="rgba(255,68,102,0.3)" stroke-width="1" class="diagram-chunk" data-info="NON_MAIN_ARENA (bit 2): Set if this chunk belongs to a thread arena rather than the main arena."/>
+      <text x="505" y="22" text-anchor="middle" fill="rgba(255,68,102,0.8)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">NON_MAIN_ARENA (0x4)</text>
+      <text x="505" y="40" text-anchor="middle" fill="rgba(255,68,102,0.5)" font-family="JetBrains Mono, monospace" font-size="9">Belongs to thread arena</text>
+    </g>
+
+    <!-- Info panel (initially hidden, shown on hover) -->
+    <g id="diagram-info-panel" style="display: none;">
+      <rect x="250" y="240" width="300" height="35" rx="6" fill="var(--bg-card)" stroke="var(--border)" stroke-width="1"/>
+      <text id="diagram-info-text" x="400" y="262" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="11"></text>
+    </g>
+  </svg>
+
+  <div id="diagram-tooltip" class="fixed pointer-events-none z-50 hidden" style="max-width: 280px;">
+    <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 shadow-2xl">
+      <p id="diagram-tooltip-text" class="text-xs text-[var(--text-secondary)] leading-relaxed"></p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    const chunks = document.querySelectorAll('.diagram-chunk');
+    const tooltip = document.getElementById('diagram-tooltip');
+    const tooltipText = document.getElementById('diagram-tooltip-text');
+    
+    chunks.forEach(chunk => {
+      chunk.addEventListener('mouseenter', (e) => {
+        const info = chunk.dataset.info;
+        if (info) {
+          tooltipText.textContent = info;
+          tooltip.classList.remove('hidden');
+          chunk.style.filter = 'url(#glow)';
+          chunk.style.cursor = 'pointer';
+        }
+      });
+      
+      chunk.addEventListener('mousemove', (e) => {
+        tooltip.style.left = (e.clientX + 15) + 'px';
+        tooltip.style.top = (e.clientY + 15) + 'px';
+      });
+      
+      chunk.addEventListener('mouseleave', () => {
+        tooltip.classList.add('hidden');
+        chunk.style.filter = '';
+      });
+    });
+  })();
+</script>

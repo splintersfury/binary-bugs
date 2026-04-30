@@ -1,0 +1,223 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<canvas id="memory-canvas" class={`absolute inset-0 w-full h-full ${className}`} style="opacity: 0.6;"></canvas>
+
+<script is:inline>
+  (function() {
+    const canvas = document.getElementById('memory-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let chunks = [];
+    let particles = [];
+    let frame = 0;
+
+    function resize() {
+      const parent = canvas.parentElement;
+      width = parent.offsetWidth;
+      height = parent.offsetHeight;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    class MemoryChunk {
+      constructor() {
+        this.w = 20 + Math.random() * 80;
+        this.h = 12 + Math.random() * 16;
+        this.x = Math.random() * (width - this.w - 40) + 20;
+        this.y = Math.random() * (height - this.h - 40) + 20;
+        this.age = 0;
+        this.lifetime = 60 + Math.random() * 180;
+        this.state = 'allocating'; // allocating, active, freeing
+        this.opacity = 0;
+        this.color = this.getColor();
+        this.metadata = {
+          size: Math.floor(Math.random() * 0x400).toString(16).toUpperCase().padStart(4, '0'),
+          prev: Math.random() > 0.5,
+        };
+      }
+
+      getColor() {
+        const colors = [
+          'rgba(0, 240, 255, 0.15)',
+          'rgba(0, 255, 157, 0.12)',
+          'rgba(255, 184, 0, 0.12)',
+          'rgba(255, 68, 102, 0.12)',
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.age++;
+        
+        if (this.state === 'allocating') {
+          this.opacity = Math.min(this.opacity + 0.05, 1);
+          if (this.opacity >= 1) this.state = 'active';
+        } else if (this.state === 'active') {
+          if (this.age > this.lifetime) this.state = 'freeing';
+        } else if (this.state === 'freeing') {
+          this.opacity -= 0.03;
+          if (this.opacity <= 0) return false;
+        }
+        return true;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        
+        // Glow
+        ctx.shadowColor = this.color.replace(/[\d.]+\)$/, '0.4)');
+        ctx.shadowBlur = 15;
+        
+        // Chunk body
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.color.replace(/[\d.]+\)$/, '0.5)');
+        ctx.lineWidth = 1;
+        
+        // Rounded rect
+        const r = 4;
+        ctx.beginPath();
+        ctx.moveTo(this.x + r, this.y);
+        ctx.lineTo(this.x + this.w - r, this.y);
+        ctx.quadraticCurveTo(this.x + this.w, this.y, this.x + this.w, this.y + r);
+        ctx.lineTo(this.x + this.w, this.y + this.h - r);
+        ctx.quadraticCurveTo(this.x + this.w, this.y + this.h, this.x + this.w - r, this.y + this.h);
+        ctx.lineTo(this.x + r, this.y + this.h);
+        ctx.quadraticCurveTo(this.x, this.y + this.h, this.x, this.y + this.h - r);
+        ctx.lineTo(this.x, this.y + r);
+        ctx.quadraticCurveTo(this.x, this.y, this.x + r, this.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Metadata label
+        if (this.state === 'active' && this.w > 40) {
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = 'rgba(226, 226, 226, 0.6)';
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            `0x${this.metadata.size}`,
+            this.x + this.w / 2,
+            this.y + this.h / 2 + 3
+          );
+        }
+        
+        ctx.restore();
+      }
+    }
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.life = 1;
+        this.decay = 0.02 + Math.random() * 0.02;
+        this.color = color;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+        return this.life > 0;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.life * 0.6;
+        ctx.fillStyle = this.color.replace(/[\d.]+\)$/, '0.8)');
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawGrid() {
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.03)';
+      ctx.lineWidth = 0.5;
+      const gridSize = 40;
+      
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawAddressColumn() {
+      ctx.fillStyle = 'rgba(110, 110, 138, 0.3)';
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.textAlign = 'left';
+      const gridSize = 40;
+      
+      for (let y = 0; y < height; y += gridSize) {
+        const addr = (0x7fff0000 + y * 16).toString(16).toUpperCase();
+        ctx.fillText(`0x${addr}`, 8, y + 14);
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      
+      drawGrid();
+      drawAddressColumn();
+
+      // Spawn new chunks
+      if (frame % 20 === 0 && chunks.length < 25) {
+        chunks.push(new MemoryChunk());
+      }
+
+      // Update and draw chunks
+      chunks = chunks.filter(chunk => {
+        const alive = chunk.update();
+        if (!alive) {
+          // Spawn particles on free
+          for (let i = 0; i < 5; i++) {
+            particles.push(new Particle(
+              chunk.x + chunk.w / 2,
+              chunk.y + chunk.h / 2,
+              chunk.color
+            ));
+          }
+        }
+        chunk.draw(ctx);
+        return alive;
+      });
+
+      // Update and draw particles
+      particles = particles.filter(p => {
+        const alive = p.update();
+        p.draw(ctx);
+        return alive;
+      });
+
+      frame++;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  })();
+</script>

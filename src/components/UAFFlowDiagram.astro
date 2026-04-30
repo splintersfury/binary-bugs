@@ -1,0 +1,150 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class={`${className}`}>
+  <svg viewBox="0 0 900 400" class="w-full" style="max-width: 900px;">
+    <defs>
+      <marker id="arrow-cyan" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="var(--accent)"/>
+      </marker>
+      <marker id="arrow-danger" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="var(--danger)"/>
+      </marker>
+      <marker id="arrow-warning" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="var(--warning)"/>
+      </marker>
+      <linearGradient id="allocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgba(0,240,255,0.2)"/>
+        <stop offset="100%" style="stop-color:rgba(0,240,255,0.05)"/>
+      </linearGradient>
+      <linearGradient id="freeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgba(255,68,102,0.2)"/>
+        <stop offset="100%" style="stop-color:rgba(255,68,102,0.05)"/>
+      </linearGradient>
+      <linearGradient id="reuseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgba(255,184,0,0.2)"/>
+        <stop offset="100%" style="stop-color:rgba(255,184,0,0.05)"/>
+      </linearGradient>
+      <filter id="glow-diag">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <!-- Title -->
+    <text x="450" y="30" text-anchor="middle" fill="var(--text-secondary)" font-family="JetBrains Mono, monospace" font-size="12" letter-spacing="3">UAF EXPLOITATION FLOW</text>
+
+    <!-- STEP 1: Allocate -->
+    <g transform="translate(50, 70)">
+      <rect x="0" y="0" width="220" height="280" rx="8" fill="var(--bg-card)" stroke="var(--border)" stroke-width="1"/>
+      <text x="110" y="30" text-anchor="middle" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">STEP 1: ALLOCATE</text>
+      
+      <!-- Memory block -->
+      <g transform="translate(35, 55)">
+        <rect x="0" y="0" width="150" height="70" rx="4" fill="url(#allocGrad)" stroke="var(--accent)" stroke-width="1.5" filter="url(#glow-diag)"/>
+        <text x="75" y="25" text-anchor="middle" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">Object A (foo_t)</text>
+        <text x="75" y="45" text-anchor="middle" fill="rgba(0,240,255,0.6)" font-family="JetBrains Mono, monospace" font-size="9">vtable ptr</text>
+        <text x="75" y="58" text-anchor="middle" fill="rgba(0,240,255,0.6)" font-family="JetBrains Mono, monospace" font-size="9">data fields...</text>
+        
+        <!-- Pointer -->
+        <line x1="75" y1="85" x2="75" y2="105" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+        <text x="75" y="120" text-anchor="middle" fill="var(--text)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">ptr_A</text>
+      </g>
+      
+      <text x="110" y="210" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">Program allocates object</text>
+      <text x="110" y="225" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">and stores reference.</text>
+      
+      <rect x="20" y="245" width="180" height="25" rx="4" fill="var(--bg-elevated)" stroke="var(--border)"/>
+      <text x="110" y="262" text-anchor="middle" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="9">malloc(sizeof(foo_t))</text>
+    </g>
+
+    <!-- Arrow 1 → 2 -->
+    <g transform="translate(280, 200)">
+      <line x1="0" y1="0" x2="50" y2="0" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow-cyan)"/>
+      <text x="25" y="-10" text-anchor="middle" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="9">free()</text>
+    </g>
+
+    <!-- STEP 2: Free -->
+    <g transform="translate(340, 70)">
+      <rect x="0" y="0" width="220" height="280" rx="8" fill="var(--bg-card)" stroke="var(--danger)" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="110" y="30" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">STEP 2: FREE</text>
+      
+      <!-- Memory block (freed) -->
+      <g transform="translate(35, 55)">
+        <rect x="0" y="0" width="150" height="70" rx="4" fill="url(#freeGrad)" stroke="var(--danger)" stroke-width="1.5"/>
+        <text x="75" y="25" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">FREED CHUNK</text>
+        <text x="75" y="45" text-anchor="middle" fill="rgba(255,68,102,0.6)" font-family="JetBrains Mono, monospace" font-size="9">fd → next free</text>
+        <text x="75" y="58" text-anchor="middle" fill="rgba(255,68,102,0.6)" font-family="JetBrains Mono, monospace" font-size="9">bk → prev free</text>
+        
+        <!-- Pointer (dangling) -->
+        <line x1="75" y1="85" x2="75" y2="105" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow-danger)"/>
+        <text x="75" y="120" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">ptr_A ⚠️ DANGLING</text>
+      </g>
+      
+      <text x="110" y="210" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">Object freed, but pointer</text>
+      <text x="110" y="225" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">is not nulled. Chunk enters bin.</text>
+      
+      <rect x="20" y="245" width="180" height="25" rx="4" fill="var(--bg-elevated)" stroke="var(--border)"/>
+      <text x="110" y="262" text-anchor="middle" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="9">free(ptr_A) // ptr_A not cleared!</text>
+    </g>
+
+    <!-- Arrow 2 → 3 -->
+    <g transform="translate(570, 200)">
+      <line x1="0" y1="0" x2="50" y2="0" stroke="var(--warning)" stroke-width="2" marker-end="url(#arrow-warning)"/>
+      <text x="25" y="-10" text-anchor="middle" fill="var(--warning)" font-family="JetBrains Mono, monospace" font-size="9">malloc()</text>
+    </g>
+
+    <!-- STEP 3: Reallocate -->
+    <g transform="translate(630, 70)">
+      <rect x="0" y="0" width="220" height="280" rx="8" fill="var(--bg-card)" stroke="var(--warning)" stroke-width="1"/>
+      <text x="110" y="30" text-anchor="middle" fill="var(--warning)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">STEP 3: REALLOCATE</text>
+      
+      <!-- Memory block (attacker controlled) -->
+      <g transform="translate(35, 55)">
+        <rect x="0" y="0" width="150" height="70" rx="4" fill="url(#reuseGrad)" stroke="var(--warning)" stroke-width="1.5" filter="url(#glow-diag)"/>
+        <text x="75" y="25" text-anchor="middle" fill="var(--warning)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">Object B (bar_t)</text>
+        <text x="75" y="45" text-anchor="middle" fill="rgba(255,184,0,0.6)" font-family="JetBrains Mono, monospace" font-size="9">attacker_ctrl_ptr</text>
+        <text x="75" y="58" text-anchor="middle" fill="rgba(255,184,0,0.6)" font-family="JetBrains Mono, monospace" font-size="9">fake vtable...</text>
+        
+        <!-- Pointer (now pointing to attacker data) -->
+        <line x1="75" y1="85" x2="75" y2="105" stroke="var(--warning)" stroke-width="1.5" marker-end="url(#arrow-warning)"/>
+        <text x="75" y="120" text-anchor="middle" fill="var(--warning)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">ptr_A → CONTROLLED</text>
+      </g>
+      
+      <text x="110" y="210" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">Attacker allocates same-size</text>
+      <text x="110" y="225" text-anchor="middle" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-size="10">object. ptr_A now points to evil data.</text>
+      
+      <rect x="20" y="245" width="180" height="25" rx="4" fill="var(--bg-elevated)" stroke="var(--border)"/>
+      <text x="110" y="262" text-anchor="middle" fill="var(--text-muted)" font-family="JetBrains Mono, monospace" font-size="9">obj_B = malloc(sizeof(bar_t))</text>
+    </g>
+
+    <!-- Bottom consequence -->
+    <g transform="translate(50, 370)">
+      <rect x="0" y="0" width="800" height="25" rx="4" fill="var(--danger)" fill-opacity="0.1" stroke="var(--danger)" stroke-width="1"/>
+      <text x="400" y="17" text-anchor="middle" fill="var(--danger)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">
+        ptr_A->vtable_dispatch()  →  JUMPS TO ATTACKER_CONTROLLED_ADDRESS  →  CODE EXECUTION
+      </text>
+    </g>
+  </svg>
+
+  <div id="uaf-tooltip" class="fixed pointer-events-none z-50 hidden" style="max-width: 260px;">
+    <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 shadow-2xl">
+      <p id="uaf-tooltip-text" class="text-xs text-[var(--text-secondary)] leading-relaxed"></p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    // This diagram is static but could be made interactive
+    // For now it serves as a clear visual explanation
+  })();
+</script>
