@@ -12,8 +12,8 @@ const sortedFundamentals = fundamentals.sort((a, b) => (a.data.order || 0) - (b.
 <Layout title="Binary Bugs" description="Knowledge base for binary exploitation and memory corruption">
   
   <!-- Hero -->
-  <div style="max-width: 800px; margin: 0 auto; padding: 4rem 1.5rem 3rem; text-align: center;">
-    <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.03em;">
+  <div style="max-width: 800px; margin: 0 auto; padding: 4rem 1.5rem 3rem; text-align: center; position: relative;">
+    <h1 class="hero-title" style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.03em; position: relative; display: inline-block;">
       Binary Bugs
     </h1>
     <p style="font-size: 1.25rem; color: var(--text-body); line-height: 1.6; margin: 0 auto 2rem; max-width: 55ch;">
@@ -161,6 +161,17 @@ const sortedFundamentals = fundamentals.sort((a, b) => (a.data.order || 0) - (b.
     .card-link:hover {
       border-color: var(--border-hover) !important;
       background: var(--bg-card) !important;
+      box-shadow: 0 4px 20px rgba(0, 224, 232, 0.05);
+      transform: translateY(-2px);
+    }
+    
+    .hero-title {
+      animation: hero-glow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes hero-glow {
+      0% { text-shadow: 0 0 20px rgba(0, 224, 232, 0.1); }
+      100% { text-shadow: 0 0 40px rgba(0, 224, 232, 0.2), 0 0 80px rgba(0, 224, 232, 0.05); }
     }
   </style>
 </Layout>

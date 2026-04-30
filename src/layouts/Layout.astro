@@ -1,4 +1,6 @@
 ---
+import Particles from '../components/Particles.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -62,6 +64,20 @@ const navItems = [
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      position: relative;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(0, 224, 232, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 224, 232, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* Selection */
@@ -105,6 +121,15 @@ const navItems = [
       color: #fff;
       text-decoration: underline;
       text-underline-offset: 3px;
+      text-shadow: 0 0 20px var(--accent-dim);
+    }
+
+    /* Glow effects for interactive elements */
+    button, .btn {
+      transition: all 0.3s ease;
+    }
+    button:hover, .btn:hover {
+      box-shadow: 0 0 20px var(--accent-dim);
     }
 
     /* Lists */
@@ -200,6 +225,8 @@ const navItems = [
   </style>
 </head>
 <body>
+  <Particles />
+  
   <!-- Top Navigation -->
   <nav style="position: sticky; top: 0; z-index: 100; background: rgba(9,9,12,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);">
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px;">

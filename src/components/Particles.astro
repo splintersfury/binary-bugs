@@ -1,0 +1,54 @@
+---
+/* Floating particles background - purely aesthetic */
+---
+
+<div class="particles-container" aria-hidden="true">
+  {Array.from({ length: 20 }).map((_, i) => (
+    <div 
+      class="particle"
+      style={`
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        width: ${2 + Math.random() * 3}px;
+        height: ${2 + Math.random() * 3}px;
+        animation-duration: ${15 + Math.random() * 20}s;
+        animation-delay: ${Math.random() * 10}s;
+        opacity: ${0.1 + Math.random() * 0.2};
+      `}
+    />
+  ))}
+</div>
+
+<style>
+  .particles-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .particle {
+    position: absolute;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: float-particle linear infinite;
+  }
+  
+  @keyframes float-particle {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: var(--particle-opacity, 0.2);
+    }
+    90% {
+      opacity: var(--particle-opacity, 0.2);
+    }
+    100% {
+      transform: translateY(-100vh) translateX(20px);
+      opacity: 0;
+    }
+  }
+</style>

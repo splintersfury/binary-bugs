@@ -2,8 +2,6 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
 import ContentLayout from '../../layouts/ContentLayout.astro';
 import HeapDiagram from '../../components/HeapDiagram.astro';
-import CharacterPortrait from '../../components/CharacterPortrait.astro';
-import PowerUpBar from '../../components/PowerUpBar.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('fundamentals');
@@ -36,14 +34,14 @@ const { Content } = await post.render();
         </span>
       ))}
     </div>
-    <h1 style="margin-bottom: 0.75rem; margin-top: 0;">{post.data.title}</h1>
+    <h1 class="anime-title" style="margin-bottom: 0.75rem; margin-top: 0;">{post.data.title}</h1>
     <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch; line-height: 1.6;">{post.data.description}</p>
   </div>
 
   {post.slug === 'linux-ptmalloc' && (
     <div style="margin-bottom: 2.5rem;">
       <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-        <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+        <div class="pulse-dot"></div>
         <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Chunk Structure</div>
       </div>
       <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
@@ -53,30 +51,90 @@ const { Content } = await post.render();
     </div>
   )}
 
-  {/* Anime flair - Allocator character */}
-  <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;">
-    <CharacterPortrait character="allocator" size={56} />
-    <div>
-      <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem;">The Allocator</div>
-      <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Your opponent in the heap exploitation battle. Understand its behavior to defeat it.</div>
-    </div>
-  </div>
-
-  <div style="max-width: 70ch;">
+  <div class="anime-content" style="max-width: 70ch;">
     <Content />
   </div>
-
-  {/* Difficulty power-ups */}
-  <div style="margin-top: 2.5rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
-    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Learning Curve</div>
-    <PowerUpBar name="Concept Complexity" level={post.data.order ? post.data.order * 25 : 50} maxLevel={100} color="cyan" description="How difficult the concepts are to grasp" />
-    <PowerUpBar name="Exploitation Potential" level={post.data.order ? post.data.order * 20 + 30 : 60} maxLevel={100} color="amber" description="How useful this knowledge is for exploitation" />
-  </div>
-
-  <style>
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.3); }
-    }
-  </style>
 </ContentLayout>
+
+<style>
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot-anim 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse-dot-anim {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  
+  .anime-title {
+    animation: title-reveal 0.8s ease-out;
+  }
+  
+  @keyframes title-reveal {
+    0% { opacity: 0; transform: translateY(-10px); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  
+  .anime-content :global(h2) {
+    position: relative;
+    padding-left: 1rem;
+    border-left: 3px solid var(--accent);
+    animation: slide-in 0.6s ease-out;
+  }
+  
+  @keyframes slide-in {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  
+  .anime-content :global(p) {
+    animation: fade-up 0.5s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  .anime-content :global(p:nth-child(1)) { animation-delay: 0.1s; }
+  .anime-content :global(p:nth-child(2)) { animation-delay: 0.15s; }
+  .anime-content :global(p:nth-child(3)) { animation-delay: 0.2s; }
+  .anime-content :global(p:nth-child(4)) { animation-delay: 0.25s; }
+  .anime-content :global(p:nth-child(5)) { animation-delay: 0.3s; }
+  
+  @keyframes fade-up {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  
+  .anime-content :global(pre) {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .anime-content :global(pre::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanline 4s linear infinite;
+    opacity: 0.5;
+  }
+  
+  @keyframes scanline {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  .anime-content :global(code) {
+    position: relative;
+    transition: all 0.3s;
+  }
+  
+  .anime-content :global(code:hover) {
+    color: var(--accent);
+  }
+</style>
