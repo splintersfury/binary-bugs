@@ -27,14 +27,17 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       --border: #1e1e2e;
       --border-hover: #2a2a3f;
       --text: #e2e2e2;
-      --text-secondary: #6e6e8a;
-      --text-muted: #4a4a5e;
+      --text-secondary: #8a8ab0;
+      --text-muted: #5a5a7a;
       --accent: #00f0ff;
       --accent-dim: rgba(0, 240, 255, 0.1);
       --accent-glow: rgba(0, 240, 255, 0.3);
       --danger: #ff4466;
+      --danger-dim: rgba(255, 68, 102, 0.1);
       --warning: #ffb800;
+      --warning-dim: rgba(255, 184, 0, 0.1);
       --success: #00ff9d;
+      --success-dim: rgba(0, 255, 157, 0.1);
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
     }
@@ -50,9 +53,10 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       font-family: var(--font-sans);
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.75;
       min-height: 100vh;
       overflow-x: hidden;
+      font-size: 16px;
     }
 
     ::selection {
@@ -77,34 +81,43 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       text-shadow: 0 0 20px var(--accent-glow);
     }
 
-    /* Typography */
+    /* Typography - more readable */
     h1, h2, h3, h4 {
       font-weight: 700;
       line-height: 1.2;
       letter-spacing: -0.02em;
+      color: var(--text);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
     }
-    h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
-    h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
-    h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); }
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-top: 0; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--accent); }
 
-    p { margin-bottom: 1.25em; color: var(--text-secondary); }
+    p { 
+      margin-bottom: 1.5em; 
+      color: var(--text-secondary); 
+      line-height: 1.8;
+      max-width: 70ch;
+    }
 
     /* Lists */
     ul, ol {
       margin-bottom: 1.5em;
       padding-left: 1.5em;
       color: var(--text-secondary);
+      line-height: 1.8;
     }
-    li { margin-bottom: 0.5em; }
+    li { margin-bottom: 0.75em; }
     li::marker { color: var(--accent); }
 
     /* Code */
     code {
       font-family: var(--font-mono);
       background: var(--bg-elevated);
-      padding: 0.15em 0.4em;
+      padding: 0.2em 0.5em;
       border-radius: 4px;
-      font-size: 0.85em;
+      font-size: 0.9em;
       color: var(--accent);
       border: 1px solid var(--border);
     }
@@ -113,10 +126,12 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       background: var(--bg-elevated);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.25rem;
+      padding: 1.5rem;
       overflow-x: auto;
-      margin: 1.5rem 0;
+      margin: 2rem 0;
       position: relative;
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
     pre code {
       background: none;
@@ -132,27 +147,28 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      margin: 1.5rem 0;
+      margin: 2rem 0;
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--border);
+      font-size: 0.95rem;
     }
     th {
       background: var(--bg-card);
       color: var(--text);
       font-weight: 600;
       text-align: left;
-      padding: 0.875rem 1rem;
-      font-size: 0.875rem;
+      padding: 1rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
     }
     td {
-      padding: 0.875rem 1rem;
+      padding: 1rem;
       border-bottom: 1px solid var(--border);
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      line-height: 1.6;
     }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(0, 240, 255, 0.03); }
@@ -160,11 +176,12 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
     /* Blockquote */
     blockquote {
       border-left: 3px solid var(--accent);
-      padding: 1rem 1.5rem;
-      margin: 1.5rem 0;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0;
       background: var(--accent-dim);
       border-radius: 0 8px 8px 0;
       color: var(--text-secondary);
+      font-size: 1.05rem;
     }
     blockquote p { margin: 0; }
 
@@ -207,6 +224,183 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       background-size: 60px 60px;
     }
 
+    /* ========== ANIME / MANGA EFFECTS ========== */
+
+    /* Speed lines background */
+    .speed-lines {
+      position: relative;
+      overflow: hidden;
+    }
+    .speed-lines::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        transparent 0deg 2deg,
+        rgba(0, 240, 255, 0.03) 2deg 4deg
+      );
+      animation: speed-rotate 20s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes speed-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Impact frame flash */
+    @keyframes impact-flash {
+      0% { background: var(--danger); }
+      20% { background: var(--bg); }
+      40% { background: var(--warning); }
+      60% { background: var(--bg); }
+      100% { background: transparent; }
+    }
+    .impact-flash {
+      animation: impact-flash 0.3s ease-out;
+    }
+
+    /* Shake effect for corruption/damage */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-4px) rotate(-1deg); }
+      20% { transform: translateX(4px) rotate(1deg); }
+      30% { transform: translateX(-3px) rotate(-0.5deg); }
+      40% { transform: translateX(3px) rotate(0.5deg); }
+      50% { transform: translateX(-2px); }
+      60% { transform: translateX(2px); }
+      70% { transform: translateX(-1px); }
+      80% { transform: translateX(1px); }
+      90% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.6s ease-in-out;
+    }
+
+    /* Dramatic zoom impact */
+    @keyframes impact-zoom {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .impact-zoom {
+      animation: impact-zoom 0.4s ease-out;
+    }
+
+    /* Manga panel style */
+    .manga-panel {
+      position: relative;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .manga-panel::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--accent) 0%, transparent 30%, transparent 70%, var(--danger) 100%);
+      z-index: -1;
+      opacity: 0.3;
+    }
+    .manga-panel--danger {
+      border-color: var(--danger);
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--danger-dim) 100%);
+    }
+    .manga-panel--warning {
+      border-color: var(--warning);
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--warning-dim) 100%);
+    }
+    .manga-panel--success {
+      border-color: var(--success);
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--success-dim) 100%);
+    }
+
+    /* Speech bubble */
+    .speech-bubble {
+      position: relative;
+      background: var(--bg-elevated);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      max-width: 80%;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 30px;
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid var(--accent);
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 32px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid var(--bg-elevated);
+    }
+    .speech-bubble--right {
+      margin-left: auto;
+    }
+    .speech-bubble--right::before {
+      left: auto;
+      right: 30px;
+    }
+    .speech-bubble--right::after {
+      left: auto;
+      right: 32px;
+    }
+    .speech-bubble--danger {
+      border-color: var(--danger);
+    }
+    .speech-bubble--danger::before {
+      border-top-color: var(--danger);
+    }
+
+    /* Chapter/epic text */
+    .chapter-title {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin: 3rem 0;
+      position: relative;
+    }
+    .chapter-title::before,
+    .chapter-title::after {
+      content: '◆';
+      color: var(--accent);
+      margin: 0 1rem;
+      font-size: 0.6em;
+      vertical-align: middle;
+    }
+
+    /* Action text (like manga SFX) */
+    .sfx {
+      font-family: var(--font-sans);
+      font-weight: 900;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--danger);
+      text-shadow: 2px 2px 0 var(--bg), -1px -1px 0 var(--warning);
+      display: inline-block;
+      transform: rotate(-3deg);
+    }
+
     /* Scanline effect */
     .scanlines::after {
       content: '';
@@ -223,7 +417,7 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
       z-index: 2;
     }
 
-    /* Utility: hidden ( Tailwind replacement ) */
+    /* Utility: hidden */
     .hidden { display: none !important; }
 
     /* Utility: animate-pulse */
@@ -233,6 +427,15 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
     }
     .animate-pulse {
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Content section spacing */
+    main > * + * {
+      margin-top: 2rem;
+    }
+    main h2 + p,
+    main h3 + p {
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -266,6 +469,19 @@ const { title, description = "Binary Bugs Knowledge Base" } = Astro.props;
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+
+    // Trigger shake on elements with data-shake attribute when scrolled into view
+    const shakeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('shake');
+          setTimeout(() => entry.target.classList.remove('shake'), 600);
+          shakeObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-shake]').forEach(el => shakeObserver.observe(el));
   </script>
 </body>
 </html>

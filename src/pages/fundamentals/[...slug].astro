@@ -21,51 +21,54 @@ const sorted = allFundamentals.sort((a, b) => a.data.order - b.data.order);
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
-  <div style="max-width: 1200px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 260px 1fr; gap: 2rem;">
-    <aside style="border-right: 1px solid var(--border); padding-right: 1.5rem; align-self: start; position: sticky; top: 2rem; height: fit-content;">
-      <a href="/binary-bugs/" style="display: block; margin-bottom: 2rem; font-weight: 600; color: var(--text-secondary);">← Binary Bugs</a>
-      <h3 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; font-weight: 700;">
-        Fundamentals
-      </h3>
-      <ul style="list-style: none; padding: 0;">
-        {sorted.map(f => (
-          <li style="margin-bottom: 0.5rem;">
-            <a href={`/binary-bugs/fundamentals/${f.slug}`} 
-               style={`display: block; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; ${f.slug === post.slug ? 'color: var(--accent); background: var(--accent-dim); font-weight: 600;' : 'color: var(--text-secondary);'}`}>
-              <span style="display: inline-block; width: 1.5rem; font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.5;">{String(f.data.order).padStart(2, '0')}</span>
-              {f.data.title}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </aside>
-
-    <main>
-      <div style="margin-bottom: 1.5rem;">
-        <span style={`display: inline-block; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-family: var(--font-mono); color: var(--text-muted);`}>
+  <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;">
+    
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-family: var(--font-mono); color: var(--text-muted);">
           {post.data.platform}
         </span>
         {post.data.tags.map(tag => (
-          <span style="display: inline-block; margin-left: 0.5rem; padding: 0.25rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted);">
+          <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted);">
             {tag}
           </span>
         ))}
       </div>
-      <h1 style="margin-top: 0; margin-bottom: 0.75rem;">{post.data.title}</h1>
-      <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2.5rem; line-height: 1.6;">{post.data.description}</p>
 
-      {/* Heap Diagram for linux-ptmalloc page */}
-      {post.slug === 'linux-ptmalloc' && (
-        <div style="margin-bottom: 3rem;">
-          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Interactive Chunk Structure</div>
-          <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
-            <HeapDiagram />
-          </div>
-          <p style="text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">Hover over sections to see field descriptions</p>
+      <h1 style="margin-top: 0; margin-bottom: 0.75rem; font-size: clamp(2.5rem, 6vw, 4rem);">{post.data.title}</h1>
+      <p style="color: var(--text-secondary); font-size: 1.25rem; line-height: 1.6; max-width: 60ch; margin: 0 auto;">{post.data.description}</p>
+    </div>
+
+    {/* Heap Diagram for linux-ptmalloc */}
+    {post.slug === 'linux-ptmalloc' && (
+      <div style="margin-bottom: 3rem;">
+        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; text-align: center;">Interactive Chunk Structure</div>
+        <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+          <HeapDiagram />
         </div>
-      )}
+        <p style="text-align: center; margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-muted);">Hover over sections to see field descriptions</p>
+      </div>
+    )}
 
+    {/* Navigation between fundamentals */}
+    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 3rem; flex-wrap: wrap;">
+      {sorted.map(f => (
+        <a href={`/binary-bugs/fundamentals/${f.slug}`} 
+           style={`display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; text-decoration: none; ${f.slug === post.slug ? 'background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 600;' : 'background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border);'}`}>
+          {String(f.data.order).padStart(2, '0')} {f.data.title}
+        </a>
+      ))}
+    </div>
+
+    {/* Content */}
+    <div style="max-width: 70ch; margin: 0 auto;">
       <Content />
-    </main>
+    </div>
+
+    {/* Footer nav */}
+    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center;">
+      <a href="/binary-bugs/" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; font-weight: 600;">← Back to Binary Bugs</a>
+    </div>
   </div>
 </Layout>
