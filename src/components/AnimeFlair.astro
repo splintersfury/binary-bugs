@@ -1,0 +1,44 @@
+---
+interface Props {
+  title?: string;
+  type?: 'battle' | 'chain' | 'status' | 'quote';
+  class?: string;
+}
+
+const { title, type = 'status', class: className = '' } = Astro.props;
+---
+
+<div class={`anime-flair ${type} ${className}`} style="margin: 2rem 0; position: relative;">
+  {title && (
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+      <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">{title}</span>
+    </div>
+  )}
+  <div class="anime-flair-content" style="position: relative; z-index: 1;">
+    <slot />
+  </div>
+  
+  {/* Subtle corner decorations */}
+  <div style="position: absolute; top: -4px; left: -4px; width: 20px; height: 20px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); opacity: 0.3; z-index: 0;"></div>
+  <div style="position: absolute; bottom: -4px; right: -4px; width: 20px; height: 20px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); opacity: 0.3; z-index: 0;"></div>
+</div>
+
+<style>
+  .anime-flair {
+    padding: 1.5rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  .anime-flair:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 20px rgba(0, 224, 232, 0.05);
+  }
+  
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+</style>

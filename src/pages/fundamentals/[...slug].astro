@@ -2,6 +2,8 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
 import ContentLayout from '../../layouts/ContentLayout.astro';
 import HeapDiagram from '../../components/HeapDiagram.astro';
+import CharacterPortrait from '../../components/CharacterPortrait.astro';
+import PowerUpBar from '../../components/PowerUpBar.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('fundamentals');
@@ -51,8 +53,24 @@ const { Content } = await post.render();
     </div>
   )}
 
+  {/* Anime flair - Allocator character */}
+  <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;">
+    <CharacterPortrait character="allocator" size={56} />
+    <div>
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem;">The Allocator</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Your opponent in the heap exploitation battle. Understand its behavior to defeat it.</div>
+    </div>
+  </div>
+
   <div style="max-width: 70ch;">
     <Content />
+  </div>
+
+  {/* Difficulty power-ups */}
+  <div style="margin-top: 2.5rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">Learning Curve</div>
+    <PowerUpBar name="Concept Complexity" level={post.data.order ? post.data.order * 25 : 50} maxLevel={100} color="cyan" description="How difficult the concepts are to grasp" />
+    <PowerUpBar name="Exploitation Potential" level={post.data.order ? post.data.order * 20 + 30 : 60} maxLevel={100} color="amber" description="How useful this knowledge is for exploitation" />
   </div>
 
   <style>

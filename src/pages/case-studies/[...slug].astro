@@ -1,6 +1,9 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content';
 import ContentLayout from '../../layouts/ContentLayout.astro';
+import CharacterPortrait from '../../components/CharacterPortrait.astro';
+import ComboCounter from '../../components/ComboCounter.astro';
+import PowerUpBar from '../../components/PowerUpBar.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('case-studies');
@@ -49,7 +52,36 @@ const { Content } = await post.render();
     </div>
   )}
 
+  {/* Hacker character for case studies */}
+  <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px;">
+    <CharacterPortrait character="hacker" size={56} />
+    <div>
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--warning); margin-bottom: 0.25rem;">The Researcher</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Real-world exploitation requires patience, creativity, and deep understanding of the target.</div>
+    </div>
+  </div>
+
   <div style="max-width: 70ch;">
     <Content />
+  </div>
+
+  {/* Exploitation chain for case studies */}
+  {post.data.bugClass && (
+    <div style="margin-top: 2.5rem;">
+      <ComboCounter steps={[
+        { label: 'Vuln', icon: '🔍', color: 'cyan' },
+        { label: 'Trigger', icon: '💥', color: 'red' },
+        { label: 'Primitive', icon: '🔗', color: 'amber' },
+        { label: 'Shell', icon: '🏆', color: 'green' },
+      ]} />
+    </div>
+  )}
+
+  {/* CVE Power levels */}
+  <div style="margin-top: 2.5rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem;">CVE Impact Analysis</div>
+    <PowerUpBar name="Exploitability" level={90} maxLevel={100} color="red" description="How easy it is to exploit in the wild" />
+    <PowerUpBar name="Impact" level={95} maxLevel={100} color="amber" description="Potential damage if exploited" />
+    <PowerUpBar name="Patch Urgency" level={85} maxLevel={100} color="cyan" description="How quickly this needs to be patched" />
   </div>
 </ContentLayout>
