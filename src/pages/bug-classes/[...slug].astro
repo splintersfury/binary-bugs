@@ -25,33 +25,33 @@ const { Content } = await post.render();
   currentSlug={post.slug}
   collection="bug-classes"
 >
-  <!-- Header -->
-  <div style="margin-bottom: 2rem;">
-    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-      <span style={`padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; ${
-        post.data.severity === 'critical' ? 'background: rgba(232,74,95,0.12); color: var(--danger);' :
-        post.data.severity === 'high' ? 'background: rgba(240,160,48,0.12); color: var(--warning);' :
-        'background: var(--bg-raised); color: var(--text-muted);'
+  <!-- Header with anime character flair -->
+  <div style="margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
+      <span style={`padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; ${
+        post.data.severity === 'critical' ? 'background: rgba(232,74,95,0.12); color: var(--danger); border: 1px solid rgba(232,74,95,0.25);' :
+        post.data.severity === 'high' ? 'background: rgba(240,160,48,0.12); color: var(--warning); border: 1px solid rgba(240,160,48,0.25);' :
+        'background: var(--bg-raised); color: var(--text-muted); border: 1px solid var(--border);'
       }`}>
         {post.data.severity}
       </span>
       {post.data.affected.heap && (
-        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">heap</span>
+        <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">heap</span>
       )}
       {post.data.affected.kernel && (
-        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">kernel</span>
+        <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">kernel</span>
       )}
       {post.data.affected.userland && (
-        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">userland</span>
+        <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">userland</span>
       )}
     </div>
-    <h1 style="margin-bottom: 0.75rem;">{post.data.title}</h1>
-    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch;">{post.data.description}</p>
+    <h1 style="margin-bottom: 0.75rem; margin-top: 0;">{post.data.title}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch; line-height: 1.6;">{post.data.description}</p>
   </div>
 
   {post.data.prerequisites.length > 0 && (
-    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
-      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Prerequisites</div>
+    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2.5rem;">
+      <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Prerequisites</div>
       <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-body);">
         {post.data.prerequisites.map(p => <li style="margin-bottom: 0.3rem;">{p}</li>)}
       </ul>
@@ -61,24 +61,42 @@ const { Content } = await post.render();
   {/* UAF-specific interactive demos */}
   {post.slug === 'use-after-free' && (
     <div style="margin-bottom: 3rem;">
-      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Interactive Demo</div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Interactive Demo</div>
+      </div>
       <UAFAnimation />
     </div>
   )}
 
-  <Content />
+  <div style="max-width: 70ch;">
+    <Content />
+  </div>
 
   {post.slug === 'use-after-free' && (
     <>
       <div style="margin-top: 3rem;">
-        <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Tcache Poisoning Walkthrough</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+          <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Tcache Poisoning Walkthrough</div>
+        </div>
         <TcachePoisoning />
       </div>
 
       <div style="margin-top: 3rem;">
-        <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Platform Comparison</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+          <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Platform Comparison</div>
+        </div>
         <PlatformComparison />
       </div>
     </>
   )}
+
+  <style>
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+  </style>
 </ContentLayout>

@@ -22,32 +22,34 @@ const { Content } = await post.render();
   currentSlug={post.slug}
   collection="case-studies"
 >
-  <div style="margin-bottom: 2rem;">
+  <div style="margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-      <span style="padding: 0.25rem 0.6rem; background: var(--accent-dim); border-radius: 4px; font-size: 0.72rem; font-weight: 600; font-family: var(--font-mono); color: var(--accent);">
+      <span style="padding: 0.3rem 0.7rem; background: var(--accent-dim); border: 1px solid rgba(0,224,232,0.25); border-radius: 4px; font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em;">
         {post.data.cve}
       </span>
-      <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
+      <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">
         {post.data.platform}
       </span>
       {post.data.tags.map(tag => (
-        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
+        <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
           {tag}
         </span>
       ))}
     </div>
-    <h1 style="margin-bottom: 0.75rem;">{post.data.title}</h1>
-    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch;">{post.data.description}</p>
+    <h1 style="margin-bottom: 0.75rem; margin-top: 0;">{post.data.title}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch; line-height: 1.6;">{post.data.description}</p>
   </div>
 
   {post.data.bugClass && (
-    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.75rem;">
       <span style="font-size: 0.75rem; color: var(--text-muted);">Bug Class:</span>
-      <a href={`/binary-bugs/bug-classes/${post.data.bugClass.toLowerCase().replace(/\s+/g, '-')}`} style="font-weight: 600;">
+      <a href={`/binary-bugs/bug-classes/${post.data.bugClass.toLowerCase().replace(/\s+/g, '-')}`} style="font-weight: 600; color: var(--accent); text-decoration: none;">
         {post.data.bugClass} →
       </a>
     </div>
   )}
 
-  <Content />
+  <div style="max-width: 70ch;">
+    <Content />
+  </div>
 </ContentLayout>

@@ -11,8 +11,14 @@ interface Props {
 
 const { title, description, currentSlug, collection } = Astro.props;
 
-// Fetch items for sidebar
-let items: { slug: string; title: string; subtitle?: string; order?: number }[] = [];
+let items: { 
+  slug: string; 
+  title: string; 
+  subtitle?: string; 
+  meta?: string;
+  metaColor?: string;
+  metaBg?: string;
+}[] = [];
 
 if (collection === 'fundamentals') {
   const docs = await getCollection('fundamentals');
@@ -26,7 +32,9 @@ if (collection === 'fundamentals') {
   items = docs.map(d => ({
     slug: d.slug,
     title: d.data.title,
-    subtitle: d.data.severity,
+    meta: d.data.severity,
+    metaColor: d.data.severity === 'critical' ? 'var(--danger)' : d.data.severity === 'high' ? 'var(--warning)' : 'var(--text-muted)',
+    metaBg: d.data.severity === 'critical' ? 'rgba(232,74,95,0.12)' : d.data.severity === 'high' ? 'rgba(240,160,48,0.12)' : 'var(--bg-raised)',
   }));
 } else if (collection === 'case-studies') {
   const docs = await getCollection('case-studies');
@@ -37,40 +45,65 @@ if (collection === 'fundamentals') {
   }));
 }
 
-const sectionLabels: Record<string, string> = {
-  fundamentals: 'Fundamentals',
-  'bug-classes': 'Bug Classes',
-  'case-studies': 'Case Studies',
+const sectionInfo: Record<string, { label: string; color: string; description: string }> = {
+  fundamentals: { 
+    label: 'Fundamentals', 
+    color: 'var(--accent)',
+    description: 'Memory allocators and virtual memory'
+  },
+  'bug-classes': { 
+    label: 'Bug Classes', 
+    color: 'var(--danger)',
+    description: 'Memory corruption techniques'
+  },
+  'case-studies': { 
+    label: 'Case Studies', 
+    color: 'var(--success)',
+    description: 'Real CVE analyses'
+  },
 };
+
+const section = sectionInfo[collection];
 ---
 
 <Layout title={title} description={description}>
-  <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; grid-template-columns: 240px 1fr; gap: 3rem;">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; display: grid; grid-template-columns: 220px 1fr; gap: 3rem;">
     
     <!-- Sidebar -->
     <aside style="align-self: start; position: sticky; top: 72px;">
-      <a 
-        href={`/binary-bugs/${collection}/`}
-        style="display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; text-decoration: none;"
-      >
-        {sectionLabels[collection]}
-      </a>
-      <nav style="display: flex; flex-direction: gap: 0.125rem;">
+      <!-- Section header -->
+      <div style="margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+          <div style={`width: 8px; height: 8px; border-radius: 50%; background: ${section.color};`}></div>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.06em;">{section.label}</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); padding-left: 1.25rem;">{section.description}</div>
+      </div>
+      
+      <!-- Nav items -->
+      <nav style="display: flex; flex-direction: column; gap: 2px;">
         {items.map(item => {
           const isActive = item.slug === currentSlug;
           const href = `/binary-bugs/${collection}/${item.slug}`;
           return (
             <a 
               href={href}
-              style={`display: block; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.4; text-decoration: none; transition: all 0.12s; margin-bottom: 2px; ${isActive ? 'background: var(--accent-dim); color: var(--accent); font-weight: 600;' : 'color: var(--text-body);'}`}
-              class={isActive ? '' : 'sidebar-link'}
+              style={`display: block; padding: 0.6rem 0.75rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.4; text-decoration: none; transition: all 0.15s; ${isActive ? 'background: var(--accent-dim); color: var(--accent); font-weight: 600; border-left: 2px solid var(--accent);' : 'color: var(--text-body); border-left: 2px solid transparent;'}`}
+              class={isActive ? '' : 'sidebar-item'}
             >
-              {item.subtitle && (
-                <span style={`display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; margin-right: 0.4rem; ${isActive ? 'color: var(--accent);' : 'color: var(--text-muted);'}`}>
-                  {item.subtitle}
-                </span>
-              )}
-              {item.title}
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                {item.subtitle && (
+                  <span style={`font-family: var(--font-mono); font-size: 0.7rem; ${isActive ? 'color: var(--accent);' : 'color: var(--text-muted);'}`}>
+                    {item.subtitle}
+                  </span>
+                )}
+                <span style="flex: 1;">{item.title}</span>
+                {item.meta && (
+                  <span style={`padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; background: ${item.metaBg}; color: ${item.metaColor};`}>
+                    {item.meta}
+                  </span>
+                )}
+              </div>
             </a>
           );
         })}
@@ -84,7 +117,7 @@ const sectionLabels: Record<string, string> = {
   </div>
 
   <style is:global>
-    .sidebar-link:hover {
+    .sidebar-item:hover {
       background: var(--bg-raised) !important;
       color: var(--text) !important;
     }

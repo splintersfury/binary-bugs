@@ -23,24 +23,27 @@ const { Content } = await post.render();
   currentSlug={post.slug}
   collection="fundamentals"
 >
-  <div style="margin-bottom: 2rem;">
+  <div style="margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-      <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">
+      <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">
         {post.data.platform}
       </span>
       {post.data.tags.map(tag => (
-        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
+        <span style="padding: 0.3rem 0.6rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
           {tag}
         </span>
       ))}
     </div>
-    <h1 style="margin-bottom: 0.75rem;">{post.data.title}</h1>
-    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch;">{post.data.description}</p>
+    <h1 style="margin-bottom: 0.75rem; margin-top: 0;">{post.data.title}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch; line-height: 1.6;">{post.data.description}</p>
   </div>
 
   {post.slug === 'linux-ptmalloc' && (
-    <div style="margin-bottom: 2rem;">
-      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Chunk Structure</div>
+    <div style="margin-bottom: 2.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite;"></div>
+        <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Chunk Structure</div>
+      </div>
       <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
         <HeapDiagram />
       </div>
@@ -48,5 +51,14 @@ const { Content } = await post.render();
     </div>
   )}
 
-  <Content />
+  <div style="max-width: 70ch;">
+    <Content />
+  </div>
+
+  <style>
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+  </style>
 </ContentLayout>
