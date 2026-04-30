@@ -1,6 +1,6 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import ContentLayout from '../../layouts/ContentLayout.astro';
 import HeapDiagram from '../../components/HeapDiagram.astro';
 
 export async function getStaticPaths() {
@@ -15,60 +15,38 @@ type Props = CollectionEntry<'fundamentals'>;
 
 const post = Astro.props;
 const { Content } = await post.render();
-
-const allFundamentals = await getCollection('fundamentals');
-const sorted = allFundamentals.sort((a, b) => a.data.order - b.data.order);
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
-  <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;">
-    
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 3rem;">
-      <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
-        <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-family: var(--font-mono); color: var(--text-muted);">
-          {post.data.platform}
+<ContentLayout 
+  title={post.data.title} 
+  description={post.data.description}
+  currentSlug={post.slug}
+  collection="fundamentals"
+>
+  <div style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+      <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">
+        {post.data.platform}
+      </span>
+      {post.data.tags.map(tag => (
+        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">
+          {tag}
         </span>
-        {post.data.tags.map(tag => (
-          <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted);">
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      <h1 style="margin-top: 0; margin-bottom: 0.75rem; font-size: clamp(2.5rem, 6vw, 4rem);">{post.data.title}</h1>
-      <p style="color: var(--text-secondary); font-size: 1.25rem; line-height: 1.6; max-width: 60ch; margin: 0 auto;">{post.data.description}</p>
-    </div>
-
-    {/* Heap Diagram for linux-ptmalloc */}
-    {post.slug === 'linux-ptmalloc' && (
-      <div style="margin-bottom: 3rem;">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; text-align: center;">Interactive Chunk Structure</div>
-        <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
-          <HeapDiagram />
-        </div>
-        <p style="text-align: center; margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-muted);">Hover over sections to see field descriptions</p>
-      </div>
-    )}
-
-    {/* Navigation between fundamentals */}
-    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 3rem; flex-wrap: wrap;">
-      {sorted.map(f => (
-        <a href={`/binary-bugs/fundamentals/${f.slug}`} 
-           style={`display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; text-decoration: none; ${f.slug === post.slug ? 'background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 600;' : 'background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border);'}`}>
-          {String(f.data.order).padStart(2, '0')} {f.data.title}
-        </a>
       ))}
     </div>
-
-    {/* Content */}
-    <div style="max-width: 70ch; margin: 0 auto;">
-      <Content />
-    </div>
-
-    {/* Footer nav */}
-    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center;">
-      <a href="/binary-bugs/" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; font-weight: 600;">← Back to Binary Bugs</a>
-    </div>
+    <h1 style="margin-bottom: 0.75rem;">{post.data.title}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch;">{post.data.description}</p>
   </div>
-</Layout>
+
+  {post.slug === 'linux-ptmalloc' && (
+    <div style="margin-bottom: 2rem;">
+      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Chunk Structure</div>
+      <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
+        <HeapDiagram />
+      </div>
+      <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Hover over sections for field descriptions</p>
+    </div>
+  )}
+
+  <Content />
+</ContentLayout>

@@ -1,348 +1,166 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import MemoryCanvas from '../components/MemoryCanvas.astro';
-import Typewriter from '../components/Typewriter.astro';
-import StudyArrow from '../components/StudyArrow.astro';
 import { getCollection } from 'astro:content';
 
 const fundamentals = await getCollection('fundamentals');
 const bugClasses = await getCollection('bug-classes');
 const caseStudies = await getCollection('case-studies');
 
-const sortedFundamentals = fundamentals.sort((a, b) => a.data.order - b.data.order);
+const sortedFundamentals = fundamentals.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
 ---
 
-<Layout title="Binary Bugs" description="Interactive knowledge base for binary bug classes and exploitation">
-  <!-- HERO SECTION -->
-  <section class="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg">
-    <MemoryCanvas />
-    
-    <!-- Gradient overlay for readability -->
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--bg)]/60 to-[var(--bg)] z-[1]"></div>
-    
-    <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
-      <!-- Badge -->
-      <div class="reveal reveal-delay-1 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-dim)] border border-[var(--accent)]/20 mb-8">
-        <span class="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></span>
-        <span class="text-xs font-mono text-[var(--accent)] tracking-widest uppercase">Knowledge Base v0.1</span>
+<Layout title="Binary Bugs" description="Knowledge base for binary exploitation and memory corruption">
+  
+  <!-- Hero -->
+  <div style="max-width: 800px; margin: 0 auto; padding: 4rem 1.5rem 3rem; text-align: center;">
+    <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.03em;">
+      Binary Bugs
+    </h1>
+    <p style="font-size: 1.25rem; color: var(--text-body); line-height: 1.6; margin: 0 auto 2rem; max-width: 55ch;">
+      A structured knowledge base for understanding memory corruption, heap exploitation, and binary vulnerabilities. Built incrementally as I study.
+    </p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      <a href="/binary-bugs/fundamentals/heap-overview" style="display: inline-block; padding: 0.6rem 1.25rem; background: var(--accent); color: var(--bg); font-weight: 600; border-radius: 6px; font-size: 0.95rem; text-decoration: none;">
+        Start Learning
+      </a>
+      <a href="https://github.com/splintersfury/binary-bugs" target="_blank" style="display: inline-block; padding: 0.6rem 1.25rem; background: var(--bg-raised); border: 1px solid var(--border); color: var(--text-body); font-weight: 500; border-radius: 6px; font-size: 0.95rem; text-decoration: none;">
+        View Source
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div style="max-width: 800px; margin: 0 auto; padding: 1.25rem 1.5rem; display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;">
+      <div style="text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: var(--font-mono);">{fundamentals.length}</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Fundamentals</div>
       </div>
-      
-      <!-- Main headline -->
-      <h1 class="reveal reveal-delay-2 mb-6 font-extrabold tracking-tight">
-        <span class="block text-[var(--text)]">Understanding</span>
-        <span class="block text-[var(--accent)] glow-text mt-2">
-          <Typewriter 
-            texts={["Memory Corruption", "Heap Exploitation", "Use-After-Free", "Binary Bugs"]} 
-            speed={100}
-          />
-        </span>
-      </h1>
-      
-      <!-- Subtitle -->
-      <p class="reveal reveal-delay-3 text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-12 leading-relaxed">
-        An interactive, incremental study of how memory allocators work — 
-        and how they break. From heap fundamentals to real exploitation primitives.
+      <div style="text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: var(--font-mono);">{bugClasses.length}</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Bug Classes</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: var(--font-mono);">{caseStudies.length}</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Case Studies</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content sections -->
+  <div style="max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem;">
+    
+    <!-- Fundamentals -->
+    <section style="margin-bottom: 3rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></div>
+        <h2 style="margin: 0; font-size: 1.1rem; border: none; padding: 0;">Fundamentals</h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">{fundamentals.length} topics</span>
+      </div>
+      <p style="color: var(--text-body); margin-bottom: 1rem; font-size: 0.95rem;">
+        Platform-specific deep dives into memory allocators and virtual memory. These are prerequisites for understanding exploitation.
       </p>
-      
-      <!-- CTA Buttons -->
-      <div class="reveal reveal-delay-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <a href="#study-path" 
-           class="group relative px-8 py-4 bg-[var(--accent)] text-[var(--bg)] font-semibold rounded-lg overflow-hidden transition-all hover:shadow-[0_0_40px_rgba(0,240,255,0.3)]">
-          <span class="relative z-10">Start Studying</span>
-          <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        </a>
-        <a href="https://github.com/splintersfury/binary-bugs" target="_blank"
-           class="px-8 py-4 border border-[var(--border)] text-[var(--text-secondary)] rounded-lg hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all font-mono text-sm">
-          <span class="mr-2">&#x2192;</span> View on GitHub
-        </a>
+      <div style="display: grid; gap: 0.5rem;">
+        {sortedFundamentals.map(f => (
+          <a href={`/binary-bugs/fundamentals/${f.slug}`} style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--text); transition: all 0.15s;" class="card-link">
+            <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); min-width: 1.5rem;">{String(f.data.order).padStart(2, '0')}</span>
+            <div>
+              <div style="font-weight: 500; font-size: 0.92rem; margin-bottom: 0.15rem;">{f.data.title}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.3;">{f.data.description}</div>
+            </div>
+          </a>
+        ))}
       </div>
-      
-      <!-- Animated stats -->
-      <div class="reveal mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
-        <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--accent)] font-mono">{fundamentals.length}</div>
-          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Fundamentals</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--warning)] font-mono">{bugClasses.length}</div>
-          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Bug Classes</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--success)] font-mono">2</div>
-          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Platforms</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl md:text-4xl font-bold text-[var(--danger)] font-mono">{caseStudies.length}</div>
-          <div class="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Case Studies</div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Scroll indicator -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[var(--text-muted)]">
-      <span class="text-xs uppercase tracking-widest">Scroll</span>
-      <div class="w-[1px] h-8 bg-gradient-to-b from-[var(--accent)] to-transparent"></div>
-    </div>
-  </section>
+    </section>
 
-  <!-- STUDY PATH SECTION -->
-  <section id="study-path" class="py-24 px-4 relative">
-    <div class="max-w-4xl mx-auto">
-      <div class="reveal text-center mb-16">
-        <span class="text-xs font-mono text-[var(--accent)] uppercase tracking-widest">Learning Path</span>
-        <h2 class="mt-4 text-[var(--text)]">How This Site Works</h2>
-        <p class="text-[var(--text-secondary)] mt-4 max-w-xl mx-auto">
-          Binary exploitation is a graph, not a timeline. Each concept unlocks the next. 
-          Follow the path — or jump around if you already know the prerequisites.
-        </p>
+    <!-- Bug Classes -->
+    <section style="margin-bottom: 3rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--danger);"></div>
+        <h2 style="margin: 0; font-size: 1.1rem; border: none; padding: 0;">Bug Classes</h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">{bugClasses.length} topics</span>
       </div>
-      
-      <div class="reveal space-y-8">
-        <!-- Step 1 -->
-        <div class="relative">
-          <div class="flex items-start gap-6 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] glow-border transition-all">
-            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-[var(--accent-dim)] border border-[var(--accent)]/30 flex items-center justify-center">
-              <span class="text-lg font-bold text-[var(--accent)] font-mono">01</span>
+      <p style="color: var(--text-body); margin-bottom: 1rem; font-size: 0.95rem;">
+        Anatomy of memory corruption bugs: triggers, corrupted state, exploitation paths, and mitigations.
+      </p>
+      <div style="display: grid; gap: 0.5rem;">
+        {bugClasses.map(b => (
+          <a href={`/binary-bugs/bug-classes/${b.slug}`} style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--text); transition: all 0.15s;" class="card-link">
+            <div>
+              <div style="font-weight: 500; font-size: 0.92rem; margin-bottom: 0.15rem;">{b.data.title}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.3;">{b.data.description}</div>
             </div>
-            <div class="flex-1">
-              <h3 class="text-[var(--text)] font-semibold mb-2">Master the Fundamentals</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-4">
-                You can't exploit what you don't understand. Start with how allocators manage memory 
-                — chunks, bins, metadata, and the differences between Linux and Windows.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                {sortedFundamentals.map(f => (
-                  <a href={`/binary-bugs/fundamentals/${f.slug}`} 
-                     class="px-3 py-1 text-xs font-mono rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all">
-                    {f.data.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <StudyArrow from="Heap Internals" to="Bug Analysis" label="corrupt" class="reveal" />
-        
-        <!-- Step 2 -->
-        <div class="reveal relative">
-          <div class="flex items-start gap-6 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] glow-border transition-all">
-            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/30 flex items-center justify-center">
-              <span class="text-lg font-bold text-[var(--warning)] font-mono">02</span>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-[var(--text)] font-semibold mb-2">Study Bug Classes</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-4">
-                Understand the anatomy of each bug: what triggers it, what the corrupted state looks like, 
-                and how modern mitigations try to stop it.
-              </p>
-              <div class="flex flex-wrap gap-2">
-                {bugClasses.map(b => (
-                  <a href={`/binary-bugs/bug-classes/${b.slug}`}
-                     class="px-3 py-1 text-xs font-mono rounded-md bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--warning)] hover:text-[var(--warning)] transition-all">
-                    {b.data.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <StudyArrow from="Bug Analysis" to="Real Exploits" label="weaponize" class="reveal" />
-        
-        <!-- Step 3 -->
-        <div class="reveal relative">
-          <div class="flex items-start gap-6 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] glow-border transition-all">
-            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/30 flex items-center justify-center">
-              <span class="text-lg font-bold text-[var(--danger)] font-mono">03</span>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-[var(--text)] font-semibold mb-2">Analyze Real Cases</h3>
-              <p class="text-[var(--text-secondary)] text-sm mb-4">
-                Apply the theory to actual CVEs and CTF challenges. See how researchers turned 
-                a dangling pointer into arbitrary code execution.
-              </p>
-              <div class="flex items-center gap-2 text-xs font-mono">
-                <span class="w-2 h-2 rounded-full bg-[var(--success)]"></span>
-                <a href="/binary-bugs/case-studies/cve-2021-21220" class="text-[var(--success)] hover:text-[var(--accent)] transition-colors">CVE-2021-21220: Chrome V8 UAF →</a>
-              </div>
-            </div>
-          </div>
-        </div>
+            <span style={`flex-shrink: 0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; ${
+              b.data.severity === 'critical' ? 'background: rgba(232,74,95,0.12); color: var(--danger);' :
+              b.data.severity === 'high' ? 'background: rgba(240,160,48,0.12); color: var(--warning);' :
+              'background: var(--bg-card); color: var(--text-muted);'
+            }`}>
+              {b.data.severity}
+            </span>
+          </a>
+        ))}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CONTENT PREVIEW SECTION -->
-  <section class="py-24 px-4 bg-[var(--bg-elevated)] relative overflow-hidden">
-    <!-- Decorative elements -->
-    <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--accent)]/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-[var(--warning)]/5 rounded-full blur-3xl"></div>
-    
-    <div class="max-w-6xl mx-auto relative z-10">
-      <div class="reveal text-center mb-16">
-        <span class="text-xs font-mono text-[var(--accent)] uppercase tracking-widest">Content</span>
-        <h2 class="mt-4 text-[var(--text)]">What's Inside</h2>
+    <!-- Case Studies -->
+    <section style="margin-bottom: 3rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></div>
+        <h2 style="margin: 0; font-size: 1.1rem; border: none; padding: 0;">Case Studies</h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">{caseStudies.length} topics</span>
       </div>
-      
-      <div class="grid md:grid-cols-2 gap-8">
-        <!-- Fundamentals Card -->
-        <div class="reveal reveal-delay-1 group">
-          <div class="h-full p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] glow-border transition-all">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-10 h-10 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                </svg>
+      <p style="color: var(--text-body); margin-bottom: 1rem; font-size: 0.95rem;">
+        Real CVE write-ups and CTF challenge analyses. See how theory translates to real exploits.
+      </p>
+      {caseStudies.length > 0 ? (
+        <div style="display: grid; gap: 0.5rem;">
+          {caseStudies.map(c => (
+            <a href={`/binary-bugs/case-studies/${c.slug}`} style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--text); transition: all 0.15s;" class="card-link">
+              <div>
+                <div style="font-weight: 500; font-size: 0.92rem; margin-bottom: 0.15rem;">{c.data.title}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.3;">{c.data.description}</div>
               </div>
-              <h3 class="text-xl font-semibold text-[var(--text)]">Fundamentals</h3>
-            </div>
-            
-            <p class="text-[var(--text-secondary)] text-sm mb-6">
-              Platform-specific deep dives into memory allocators, virtual memory, and the structures 
-              that underpin every heap exploit.
-            </p>
-            
-            <div class="space-y-3">
-              {sortedFundamentals.map(f => (
-                <a href={`/binary-bugs/fundamentals/${f.slug}`} 
-                   class="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--accent)]/50 transition-all group/item">
-                  <span class="text-xs font-mono text-[var(--text-muted)]">{String(f.data.order).padStart(2, '0')}</span>
-                  <div class="flex-1">
-                    <div class="text-sm font-medium text-[var(--text)] group-hover/item:text-[var(--accent)] transition-colors">{f.data.title}</div>
-                    <div class="text-xs text-[var(--text-muted)]">{f.data.description}</div>
-                  </div>
-                  <svg class="w-4 h-4 text-[var(--text-muted)] group-hover/item:text-[var(--accent)] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              ))}
-            </div>
-          </div>
+              <span style="flex-shrink: 0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; font-family: var(--font-mono); background: var(--accent-dim); color: var(--accent);">
+                {c.data.cve}
+              </span>
+            </a>
+          ))}
         </div>
-        
-        <!-- Bug Classes Card -->
-        <div class="reveal reveal-delay-2 group">
-          <div class="h-full p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] glow-border transition-all">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-10 h-10 rounded-lg bg-[var(--danger)]/10 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-[var(--text)]">Bug Classes</h3>
-            </div>
-            
-            <p class="text-[var(--text-secondary)] text-sm mb-6">
-              Detailed breakdowns of memory corruption bug classes: triggers, corrupted state, 
-              exploitation paths, and modern mitigations.
-            </p>
-            
-            <div class="space-y-3">
-              {bugClasses.map(b => (
-                <a href={`/binary-bugs/bug-classes/${b.slug}`}
-                   class="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--danger)]/50 transition-all group/item">
-                  <span class={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
-                    b.data.severity === 'critical' ? 'bg-[var(--danger)]/20 text-[var(--danger)]' :
-                    b.data.severity === 'high' ? 'bg-[var(--warning)]/20 text-[var(--warning)]' :
-                    'bg-[var(--text-muted)]/20 text-[var(--text-muted)]'
-                  }`}>
-                    {b.data.severity}
-                  </span>
-                  <div class="flex-1">
-                    <div class="text-sm font-medium text-[var(--text)] group-hover/item:text-[var(--danger)] transition-colors">{b.data.title}</div>
-                    <div class="text-xs text-[var(--text-muted)]">{b.data.description}</div>
-                  </div>
-                  <svg class="w-4 h-4 text-[var(--text-muted)] group-hover/item:text-[var(--danger)] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              ))}
-            </div>
-            
-            <div class="mt-6 p-4 rounded-lg bg-[var(--accent)]/5 border border-[var(--accent)]/20">
-              <p class="text-xs text-[var(--text-muted)] font-mono">
-                <span class="text-[var(--accent)]">Growing:</span> More techniques and CVE case studies added incrementally.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+      ) : (
+        <p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Case studies coming soon.</p>
+      )}
+    </section>
 
-  <!-- PRINCIPLES SECTION -->
-  <section class="py-24 px-4">
-    <div class="max-w-4xl mx-auto">
-      <div class="reveal text-center mb-16">
-        <span class="text-xs font-mono text-[var(--accent)] uppercase tracking-widest">Philosophy</span>
-        <h2 class="mt-4 text-[var(--text)]">Principles</h2>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="reveal reveal-delay-1 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-center">
-          <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--accent)]/10 flex items-center justify-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-          </div>
-          <h3 class="text-[var(--text)] font-semibold mb-2">Platform-Agnostic</h3>
-          <p class="text-sm text-[var(--text-secondary)]">
-            Study both Linux (ptmalloc) and Windows (NT Heap / LFH). The concepts transfer. The details differ.
+    <!-- Philosophy -->
+    <section style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+      <h2 style="font-size: 1.1rem; border: none; margin-bottom: 1.5rem;">How This Site Works</h2>
+      <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div>
+          <h4 style="margin: 0 0 0.5rem; font-size: 0.8rem;">Platform-Agnostic</h4>
+          <p style="font-size: 0.9rem; color: var(--text-body); margin: 0; line-height: 1.6;">
+            Study both Linux (ptmalloc) and Windows (NT Heap). The concepts transfer. The details differ.
           </p>
         </div>
-        
-        <div class="reveal reveal-delay-2 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-center">
-          <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--success)]/10 flex items-center justify-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-            </svg>
-          </div>
-          <h3 class="text-[var(--text)] font-semibold mb-2">Incremental</h3>
-          <p class="text-sm text-[var(--text-secondary)]">
-            Start with concepts. Add depth over time. Every page is a living document that grows as you learn.
+        <div>
+          <h4 style="margin: 0 0 0.5rem; font-size: 0.8rem;">Incremental</h4>
+          <p style="font-size: 0.9rem; color: var(--text-body); margin: 0; line-height: 1.6;">
+            Start with fundamentals, then bug classes, then case studies. Each page links to its prerequisites.
           </p>
         </div>
-        
-        <div class="reveal reveal-delay-3 p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-center">
-          <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--warning)]/10 flex items-center justify-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </div>
-          <h3 class="text-[var(--text)] font-semibold mb-2">Connected</h3>
-          <p class="text-sm text-[var(--text-secondary)]">
-            Every concept links to prerequisites and related bugs. No isolated knowledge — everything is a graph.
+        <div>
+          <h4 style="margin: 0 0 0.5rem; font-size: 0.8rem;">Interactive</h4>
+          <p style="font-size: 0.9rem; color: var(--text-body); margin: 0; line-height: 1.6;">
+            Step through exploitation flows. Visualize allocator structures. Learn by doing, not just reading.
           </p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- FOOTER -->
-  <footer class="py-12 px-4 border-t border-[var(--border)]">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center">
-          <span class="text-xs font-bold text-[var(--accent)] font-mono">BB</span>
-        </div>
-        <span class="text-sm text-[var(--text-muted)]">Binary Bugs — built by <a href="https://github.com/splintersfury" class="text-[var(--text-secondary)] hover:text-[var(--accent)]">splintersfury</a></span>
-      </div>
-      
-      <div class="flex items-center gap-6 text-sm text-[var(--text-muted)]">
-        <a href="https://github.com/splintersfury/binary-bugs" class="hover:text-[var(--accent)] transition-colors flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-          GitHub
-        </a>
-        <a href="https://threatunpacked.com" class="hover:text-[var(--accent)] transition-colors">Blog</a>
-        <a href="https://splintersfury.github.io/KernelSight/" class="hover:text-[var(--accent)] transition-colors">KernelSight</a>
-      </div>
-    </div>
-  </footer>
+  <style is:global>
+    .card-link:hover {
+      border-color: var(--border-hover) !important;
+      background: var(--bg-card) !important;
+    }
+  </style>
 </Layout>

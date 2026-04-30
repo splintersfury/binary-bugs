@@ -1,13 +1,9 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import ContentLayout from '../../layouts/ContentLayout.astro';
 import UAFAnimation from '../../components/UAFAnimation.astro';
 import TcachePoisoning from '../../components/TcachePoisoning.astro';
 import PlatformComparison from '../../components/PlatformComparison.astro';
-import VSScreen from '../../components/VSScreen.astro';
-import ComboCounter from '../../components/ComboCounter.astro';
-import CharacterPortrait from '../../components/CharacterPortrait.astro';
-import PowerUpBar from '../../components/PowerUpBar.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('bug-classes');
@@ -21,175 +17,68 @@ type Props = CollectionEntry<'bug-classes'>;
 
 const post = Astro.props;
 const { Content } = await post.render();
-
-const allBugClasses = await getCollection('bug-classes');
-const caseStudies = await getCollection('case-studies');
-
-const uafTechniques = allBugClasses.filter(b => 
-  ['tcache-poisoning', 'fastbin-dup', 'windows-lfh-grooming'].includes(b.slug)
-);
-const uafCases = caseStudies.filter(c => c.data.bugClass === 'Use-After-Free');
-
-const exploitChain = [
-  { label: 'Allocate', icon: '📦', color: 'cyan' },
-  { label: 'Free', icon: '🔓', color: 'red' },
-  { label: 'Corrupt', icon: '💀', color: 'amber' },
-  { label: 'Realloc', icon: '🎭', color: 'amber' },
-  { label: 'Exploit', icon: '💥', color: 'red' },
-];
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
-  <div style="max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;">
-    
-    <!-- Header with characters -->
-    <div style="text-align: center; margin-bottom: 3rem;">
-      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-        <CharacterPortrait character="allocator" size={60} />
-        <span style="font-size: 1.5rem; color: var(--text-muted);">⚔️</span>
-        <CharacterPortrait character="attacker" size={60} />
-      </div>
-      
-      <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
-        <span style={`display: inline-block; padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; ${
-          post.data.severity === 'critical' ? 'background: rgba(255,68,102,0.15); color: var(--danger); border: 1px solid rgba(255,68,102,0.3);' :
-          post.data.severity === 'high' ? 'background: rgba(255,184,0,0.15); color: var(--warning); border: 1px solid rgba(255,184,0,0.3);' :
-          'background: var(--surface); color: var(--text-muted); border: 1px solid var(--border);'
-        }`}>
-          {post.data.severity} severity
-        </span>
-        {post.data.affected.heap && (
-          <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">heap</span>
-        )}
-        {post.data.affected.kernel && (
-          <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">kernel</span>
-        )}
-        {post.data.affected.userland && (
-          <span style="display: inline-block; padding: 0.35rem 0.75rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">userland</span>
-        )}
-      </div>
-
-      <h1 style="margin-top: 0; margin-bottom: 0.75rem; font-size: clamp(2.5rem, 6vw, 4rem);">{post.data.title}</h1>
-      <p style="color: var(--text-secondary); font-size: 1.25rem; line-height: 1.6; max-width: 60ch; margin: 0 auto;">{post.data.description}</p>
+<ContentLayout 
+  title={post.data.title} 
+  description={post.data.description}
+  currentSlug={post.slug}
+  collection="bug-classes"
+>
+  <!-- Header -->
+  <div style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+      <span style={`padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; ${
+        post.data.severity === 'critical' ? 'background: rgba(232,74,95,0.12); color: var(--danger);' :
+        post.data.severity === 'high' ? 'background: rgba(240,160,48,0.12); color: var(--warning);' :
+        'background: var(--bg-raised); color: var(--text-muted);'
+      }`}>
+        {post.data.severity}
+      </span>
+      {post.data.affected.heap && (
+        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">heap</span>
+      )}
+      {post.data.affected.kernel && (
+        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">kernel</span>
+      )}
+      {post.data.affected.userland && (
+        <span style="padding: 0.25rem 0.6rem; background: var(--bg-raised); border-radius: 4px; font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted);">userland</span>
+      )}
     </div>
-
-    {post.data.prerequisites.length > 0 && (
-      <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Prerequisites</div>
-        <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary);">
-          {post.data.prerequisites.map(p => <li style="margin-bottom: 0.35rem;">{p}</li>)}
-        </ul>
-      </div>
-    )}
-
-    {/* UAF-specific interactive content */}
-    {post.slug === 'use-after-free' && (
-      <>
-        {/* Exploitation Chain Combo */}
-        <div style="margin-bottom: 3rem;">
-          <ComboCounter steps={exploitChain} />
-        </div>
-
-        {/* Interactive Exploitation Flow */}
-        <div style="margin-bottom: 4rem;">
-          <div class="chapter-title">Interactive Exploitation Flow</div>
-          <UAFAnimation />
-        </div>
-
-        {/* Main Content */}
-        <div style="max-width: 70ch; margin: 0 auto;">
-          <Content />
-        </div>
-
-        {/* Mitigation Power-Up Bars */}
-        <div style="margin-top: 4rem; margin-bottom: 4rem;">
-          <div class="chapter-title">Mitigation Power Levels</div>
-          <div style="background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 2rem;">
-            <PowerUpBar name="ASAN (AddressSanitizer)" level={95} maxLevel={100} color="green" description="Detects UAF at runtime. Heavy performance cost." />
-            <PowerUpBar name="Safe-Linking (glibc 2.32+)" level={70} maxLevel={100} color="cyan" description="XORs fd pointers. Requires heap leak to bypass." />
-            <PowerUpBar name="Double-Free Detection" level={60} maxLevel={100} color="amber" description="Catches consecutive frees. Bypassable with intermediate allocations." />
-            <PowerUpBar name="Dangling Pointer Scrubbing" level={40} maxLevel={100} color="red" description="Zero pointers after free. Requires discipline, often missed." />
-            <PowerUpBar name="LFH Randomization (Windows)" level={75} maxLevel={100} color="cyan" description="Randomizes slot allocation. Defeated by heap grooming." />
-          </div>
-        </div>
-
-        {/* VS Screen */}
-        <div style="margin-bottom: 4rem;">
-          <div class="chapter-title">Platform Showdown</div>
-          <VSScreen leftName="Linux" rightName="Windows" />
-        </div>
-
-        {/* Techniques */}
-        <div style="margin-bottom: 4rem;">
-          <div class="chapter-title">Exploitation Techniques</div>
-          <div style="display: grid; gap: 1.5rem;">
-            {uafTechniques.map(t => (
-              <a href={`/binary-bugs/bug-classes/${t.slug}`} 
-                 style="display: block; padding: 1.5rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
-                 class="glow-border">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                  <span style="font-size: 1.1rem; font-weight: 700; color: var(--text);">{t.data.title}</span>
-                  <span style={`display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 700; ${
-                    t.data.severity === 'critical' ? 'background: rgba(255,68,102,0.15); color: var(--danger);' :
-                    t.data.severity === 'high' ? 'background: rgba(255,184,0,0.15); color: var(--warning);' :
-                    'background: var(--bg-elevated); color: var(--text-muted);'
-                  }`}>{t.data.severity}</span>
-                </div>
-                <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0; line-height: 1.6;">{t.data.description}</p>
-                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
-                  {t.data.tags.map(tag => (
-                    <span style="display: inline-block; padding: 0.2rem 0.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted);">{tag}</span>
-                  ))}
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Tcache Poisoning */}
-        <div style="margin-bottom: 4rem;">
-          <div class="chapter-title">Tcache Poisoning Walkthrough</div>
-          <TcachePoisoning />
-        </div>
-
-        {/* Platform Comparison */}
-        <div style="margin-bottom: 4rem;">
-          <div class="chapter-title">Platform Comparison</div>
-          <PlatformComparison />
-        </div>
-
-        {/* Case Studies */}
-        {uafCases.length > 0 && (
-          <div style="margin-bottom: 4rem;">
-            <div class="chapter-title">Case Studies</div>
-            <div style="display: grid; gap: 1.5rem;">
-              {uafCases.map(c => (
-                <a href={`/binary-bugs/case-studies/${c.slug}`}
-                   style="display: block; padding: 1.5rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
-                   class="glow-border">
-                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--text);">{c.data.title}</span>
-                    <span style="display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 700; background: rgba(0,240,255,0.1); color: var(--accent);">{c.data.cve}</span>
-                  </div>
-                  <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0; line-height: 1.6;">{c.data.description}</p>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-      </>
-    )}
-
-    {/* Non-UAF bug classes just show content */}
-    {post.slug !== 'use-after-free' && (
-      <div style="max-width: 70ch; margin: 0 auto;">
-        <Content />
-      </div>
-    )}
-
-    {/* Navigation footer */}
-    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center;">
-      <a href="/binary-bugs/" style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; font-weight: 600;">← Back to Binary Bugs</a>
-    </div>
+    <h1 style="margin-bottom: 0.75rem;">{post.data.title}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-body); margin: 0; max-width: 60ch;">{post.data.description}</p>
   </div>
-</Layout>
+
+  {post.data.prerequisites.length > 0 && (
+    <div style="background: var(--bg-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
+      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Prerequisites</div>
+      <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-body);">
+        {post.data.prerequisites.map(p => <li style="margin-bottom: 0.3rem;">{p}</li>)}
+      </ul>
+    </div>
+  )}
+
+  {/* UAF-specific interactive demos */}
+  {post.slug === 'use-after-free' && (
+    <div style="margin-bottom: 3rem;">
+      <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Interactive Demo</div>
+      <UAFAnimation />
+    </div>
+  )}
+
+  <Content />
+
+  {post.slug === 'use-after-free' && (
+    <>
+      <div style="margin-top: 3rem;">
+        <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Tcache Poisoning Walkthrough</div>
+        <TcachePoisoning />
+      </div>
+
+      <div style="margin-top: 3rem;">
+        <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem;">Platform Comparison</div>
+        <PlatformComparison />
+      </div>
+    </>
+  )}
+</ContentLayout>
